@@ -139,6 +139,8 @@ git push origin slice/3-trace-ir
 
 ## Security
 
+**gitleaks version: 8.18.4** — both CI (`.github/workflows/ci.yml`) and local (`~/bin/gitleaks`) must match. Update both when upgrading.
+
 Pre-commit hooks run automatically on every commit:
 - **gitleaks** — detects secrets, API keys, tokens in code
 - **bandit** — Python static security analysis (finds common vulnerabilities)
