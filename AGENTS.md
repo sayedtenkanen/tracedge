@@ -6,14 +6,14 @@ Probabilistic program compiler that searches over a unified intermediate represe
 
 - **Plan:** `PLAN.md` (full spec, 1100+ lines)
 - **Blueprint:** `BLUEPRINT.md` (original v4 reference)
-- **Python:** 3.10+
+- **Python:** 3.12+
 - **LLM:** Ollama local (`gemma4:12b-mlx`) at `http://localhost:11434/v1`
 
 ## Commands
 
 ```bash
 # Install dependencies
-pip install -e .
+pip install -e ".[dev]"
 
 # Run tests
 pytest tests/
@@ -50,6 +50,13 @@ bandit -r src/autoharness -c pyproject.toml
 
 # Security — dependency vulnerabilities
 safety check
+
+# CI status
+bash scripts/ci-status.sh
+
+# Push with CI polling (replaces git push)
+source scripts/ci-poll.sh
+gpush
 ```
 
 ## TDD workflow
@@ -84,7 +91,7 @@ src/autoharness/
 ## Current status
 
 - [x] Plan complete (PLAN.md)
-- [ ] Slice 1: UPIR VM + Environment Protocol
+- [x] Slice 1: UPIR VM + Environment Protocol (63 tests green)
 - [ ] Slice 2: Sandbox + Safety
 - [ ] Slice 3: Trace IR
 - [ ] Slice 4: Reward Engine
@@ -92,6 +99,15 @@ src/autoharness/
 - [ ] Slice 6: Refiner + Critic Loop
 - [ ] Slice 7-10: Skills + Memory
 - [ ] Slice 11-16: Compiler layer
+
+## CI/CD
+
+GitHub Actions runs on every push to `main`:
+- **lint** — `ruff check`, `ruff format --check`, `mypy src/`
+- **test** — `pytest` with coverage
+- **security** — `gitleaks`, `shellcheck`, `bandit[toml]`, `safety`
+
+Workflow: `.github/workflows/ci.yml`
 
 ## Branching
 
