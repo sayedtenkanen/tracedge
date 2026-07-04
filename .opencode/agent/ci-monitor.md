@@ -1,7 +1,7 @@
 ---
 description: Monitors GitHub Actions CI runs, reports failures, and suggests fixes. Use when asked about CI status, failing builds, or CI run details.
 mode: subagent
-model: anthropic/claude-sonnet-4-6
+model: ollama/gemma4:12b-mlx
 permission:
   bash: allow
   read: allow
