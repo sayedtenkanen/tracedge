@@ -1,7 +1,6 @@
 """Tests for workspace sandbox — path validation and isolation."""
 
 import os
-import tempfile
 
 import pytest
 
@@ -34,7 +33,6 @@ class TestSymlinkEscape:
 
         ws = Workspace(root=str(tmp_path))
         target = os.path.join(str(tmp_path), "target.txt")
-        link = os.path.join(str(tmp_path), "link.txt")
         outside_file = os.path.join(str(tmp_path), "..", "escaped.txt")
         with open(outside_file, "w") as f:
             f.write("secret")
@@ -53,6 +51,7 @@ class TestToolTimeout:
 
         def slow_tool() -> str:
             import time
+
             time.sleep(5)
             return "done"
 

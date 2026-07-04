@@ -1,7 +1,5 @@
 """Tests for harness runner — sandboxed execution with timeout and exception handling."""
 
-import pytest
-
 
 class TestHarnessTimeout:
     """Harness code exceeding max_runtime_ms must be killed."""
