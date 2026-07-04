@@ -27,7 +27,7 @@ if [ -z "$RUN_INFO" ]; then
     exit 1
 fi
 
-IFS='|' read -r RUN_ID RUN_NUM CONCLUSION SHA UPDATED <<< "$RUN_INFO"
+IFS='|' read -r RUN_ID RUN_NUM CONCLUSION SHA _ <<< "$RUN_INFO"
 
 # Color codes
 GREEN='\033[0;32m'

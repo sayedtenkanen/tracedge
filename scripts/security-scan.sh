@@ -65,7 +65,7 @@ if have git; then
         echo "ERROR: Not inside a Git repository."
         exit 1
     }
-    cd "$GIT_ROOT"
+    cd "$GIT_ROOT" || exit
 else
     echo "WARNING: git not found, running from current directory."
 fi
@@ -102,12 +102,13 @@ log ""
 
 log "[2/6] Gitleaks (secrets detection)..."
 if have gitleaks; then
+    _g_exit=0
     if $VERBOSE; then
-        gitleaks detect --source . --verbose 2>&1
+        gitleaks detect --source . --verbose 2>&1 || _g_exit=$?
     else
-        gitleaks detect --source . 2>&1
+        gitleaks detect --source . 2>&1 || _g_exit=$?
     fi
-    if [ $? -eq 0 ]; then
+    if [ "$_g_exit" -eq 0 ]; then
         log "PASS: no secrets found"
         ((PASSED++))
     else
@@ -124,13 +125,14 @@ log ""
 
 log "[3/6] Bandit (Python security analysis)..."
 if have bandit; then
+    _b_exit=0
     if python3 -c "import toml" 2>/dev/null; then
-        bandit -r "$SOURCE_DIR" -c pyproject.toml 2>&1
+        bandit -r "$SOURCE_DIR" -c pyproject.toml 2>&1 || _b_exit=$?
     else
         echo "WARN: toml package not installed; bandit config (pyproject.toml) may be silently ignored"
-        bandit -r "$SOURCE_DIR" 2>&1
+        bandit -r "$SOURCE_DIR" 2>&1 || _b_exit=$?
     fi
-    if [ $? -eq 0 ]; then
+    if [ "$_b_exit" -eq 0 ]; then
         log "PASS: no security issues"
         ((PASSED++))
     else
@@ -191,8 +193,9 @@ log ""
 
 log "[5/6] pip-audit (dependency vulnerabilities)..."
 if have pip-audit; then
-    pip-audit 2>&1
-    if [ $? -eq 0 ]; then
+    _pa_exit=0
+    pip-audit 2>&1 || _pa_exit=$?
+    if [ "$_pa_exit" -eq 0 ]; then
         log "PASS: no known vulnerabilities"
         ((PASSED++))
     else
