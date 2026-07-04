@@ -41,6 +41,7 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "A", "SIM", "TCH"]
+ignore = ["UP045"]
 
 [tool.bandit]
 targets = ["src/autoharness"]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 
 class ToolEnvironment:
@@ -23,7 +23,7 @@ class ToolEnvironment:
         if tool == "read_file":
             path = args.get("path", "")
             try:
-                with open(path, "r") as f:
+                with open(path) as f:
                     content = f.read()
                 info["content"] = content
                 return state, 0.0, False, info
@@ -47,7 +47,7 @@ class ToolEnvironment:
         info["error"] = f"unknown tool: {tool}"
         return state, 0.0, False, info
 
-    def legal_actions(self, state: dict[str, Any]) -> Optional[list[dict[str, Any]]]:
+    def legal_actions(self, state: dict[str, Any]) -> list[dict[str, Any]] | None:
         return None
 
     def tools(self) -> dict[str, Callable[..., Any]]:
@@ -57,7 +57,7 @@ class ToolEnvironment:
         }
 
     def _read_file(self, path: str) -> str:
-        with open(path, "r") as f:
+        with open(path) as f:
             return f.read()
 
     def _write_file(self, path: str, content: str) -> None:

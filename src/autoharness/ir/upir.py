@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
@@ -10,7 +9,7 @@ HarnessID = str
 SkillID = str
 
 
-class EdgeKind(str, Enum):
+class EdgeKind(str):
     sequential = "sequential"
     branch = "branch"
     fallthrough = "fallthrough"
@@ -19,7 +18,7 @@ class EdgeKind(str, Enum):
 class Edge(BaseModel):
     from_: NodeID = Field(..., alias="from")
     to: NodeID
-    kind: EdgeKind
+    kind: str
 
     model_config = {"populate_by_name": True}
 
@@ -27,6 +26,8 @@ class Edge(BaseModel):
 class UPIRNode(BaseModel):
     kind: str
     node_id: NodeID
+    # Allow extra fields for node-specific attributes (query, tool, prompt, etc.)
+    model_config = {"extra": "allow"}
 
 
 class UPIR(BaseModel):

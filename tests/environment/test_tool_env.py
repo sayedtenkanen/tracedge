@@ -1,5 +1,3 @@
-import os
-import tempfile
 
 from autoharness.environment.tool_env import ToolEnvironment
 

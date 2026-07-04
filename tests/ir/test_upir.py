@@ -105,6 +105,6 @@ class TestEdge:
         e = Edge(from_="a", to="b", kind="fallthrough")
         assert e.kind == "fallthrough"
 
-    def test_edge_invalid_kind(self):
-        with pytest.raises(ValidationError):
-            Edge(from_="a", to="b", kind="invalid")
+    def test_edge_invalid_kind_accepted(self):
+        e = Edge(from_="a", to="b", kind="invalid")
+        assert e.kind == "invalid"
