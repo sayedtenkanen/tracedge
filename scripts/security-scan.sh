@@ -151,25 +151,36 @@ log ""
 # We distinguish "clean" from "broken" by capturing stderr separately.
 
 log "[4/6] Safety (dependency vulnerabilities)..."
+SAFETY_CMD=""
 if have safety; then
-    SAFETY_STDERR=$(mktemp)
-    SAFETY_EXIT=0
-    safety check --output text 2>"$SAFETY_STDERR" || SAFETY_EXIT=$?
+    SAFETY_CMD="safety"
+elif python3 -m safety --version >/dev/null 2>&1; then
+    SAFETY_CMD="python3 -m safety"
+fi
 
+if [ -n "$SAFETY_CMD" ]; then
+    SAFETY_STDERR=$(mktemp)
+    SAFETY_STDOUT=$(mktemp)
+    SAFETY_EXIT=0
+    $SAFETY_CMD check --output text 2>"$SAFETY_STDERR" | tee "$SAFETY_STDOUT" || SAFETY_EXIT=$?
+
+    # Determine outcome: exit 0 = clean, exit 1 = vulnerabilities, else = broken
+    # Safety's deprecated `check` may exit non-1 on errors; also check output
+    # for "VULNERABILITIES FOUND" to catch cases where exit code is unreliable.
     if [ "$SAFETY_EXIT" -eq 0 ]; then
         log "PASS: no known vulnerabilities"
         ((PASSED++))
-    elif [ "$SAFETY_EXIT" -eq 1 ]; then
+    elif [ "$SAFETY_EXIT" -eq 1 ] || grep -q "VULNERABILITIES FOUND" "$SAFETY_STDOUT" 2>/dev/null; then
         echo "WARN: safety found vulnerabilities (check output above)"
         ((WARNED++))
     else
-        echo "WARN: safety check failed (exit $SAFETY_EXIT — auth error, network issue, or invalid API key)"
+        echo "WARN: safety check failed (exit $SAFETY_EXIT — auth error, network issue, or deprecated command)"
         if [ -s "$SAFETY_STDERR" ]; then
-            echo "  stderr: $(cat "$SAFETY_STDERR")"
+            echo "  stderr: $(tail -1 "$SAFETY_STDERR")"
         fi
         ((WARNED++))
     fi
-    rm -f "$SAFETY_STDERR"
+    rm -f "$SAFETY_STDERR" "$SAFETY_STDOUT"
 else
     log "SKIP: safety not installed"
     ((SKIPPED++))
