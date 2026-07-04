@@ -92,7 +92,7 @@ src/autoharness/
 
 - [x] Plan complete (PLAN.md)
 - [x] Slice 1: UPIR VM + Environment Protocol (63 tests green)
-- [ ] Slice 2: Sandbox + Safety
+- [x] Slice 2: Sandbox + Safety (13 tests green)
 - [ ] Slice 3: Trace IR
 - [ ] Slice 4: Reward Engine
 - [ ] Slice 5: Thompson Tree Search
