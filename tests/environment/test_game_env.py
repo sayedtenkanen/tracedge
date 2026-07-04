@@ -24,9 +24,7 @@ class TestGameEnvironment:
         env = GameEnvironment()
         state = env.reset(seed=42)
         # Try an illegal move (occupied cell or out of range)
-        new_state, reward, done, info = env.step(
-            state, {"position": -1}
-        )
+        new_state, reward, done, info = env.step(state, {"position": -1})
         assert info.get("illegal") is True
         assert reward == 0.0
 
