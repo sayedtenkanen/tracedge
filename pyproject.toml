@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "autoharness"
 version = "0.1.0"
 description = "Probabilistic program compiler over UPIR with Thompson tree search"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
     "openai>=1.0",
     "pydantic>=2.0",
@@ -32,16 +32,15 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 strict = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "A", "SIM", "TCH"]
-ignore = ["UP045"]
 
 [tool.bandit]
 targets = ["src/autoharness"]
