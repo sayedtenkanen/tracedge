@@ -14,9 +14,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
+          cache: pip
       - run: pip install ruff mypy pydantic
       - run: ruff check src/ tests/
       - run: ruff format --check src/ tests/
+      - run: mypy src/ --ignore-missing-imports
 
   test:
     runs-on: ubuntu-latest
@@ -25,8 +27,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
+          cache: pip
       - run: pip install -e ".[dev]"
-      - run: pytest tests/ -v --tb=short
+      - run: pytest tests/ -v --tb=short --cov=autoharness --cov-report=term-missing --cov-report=xml
 
   security:
     runs-on: ubuntu-latest
@@ -35,5 +38,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
+          cache: pip
       - run: pip install bandit safety
+      - name: Install gitleaks
+        run: |
+          GITLEAKS_VERSION="8.18.4"
+          wget -q "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -O /tmp/gitleaks.tar.gz
+          sudo tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
       - run: bash scripts/security-scan.sh --quiet
