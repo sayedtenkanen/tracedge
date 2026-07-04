@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/gemma4:12b-mlx",
+  "instructions": ["AGENTS.md"],
+  "agent": {
+    "ci-monitor": {
+      "mode": "subagent",
+      "description": "Monitors GitHub Actions CI runs, reports failures, and suggests fixes. Use when asked about CI status, failing builds, or CI run details."
+    }
+  }
+}
