@@ -9,12 +9,6 @@ HarnessID = str
 SkillID = str
 
 
-class EdgeKind(str):
-    sequential = "sequential"
-    branch = "branch"
-    fallthrough = "fallthrough"
-
-
 class Edge(BaseModel):
     from_: NodeID = Field(..., alias="from")
     to: NodeID

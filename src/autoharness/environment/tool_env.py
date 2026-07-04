@@ -1,7 +1,10 @@
+"""Tool-based environment with sandboxed file I/O tools."""
+
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING, Any
+
+from autoharness.sandbox.workspace import Workspace
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -12,6 +15,7 @@ class ToolEnvironment:
 
     def __init__(self, workspace: str = "/tmp/workspace") -> None:  # nosec B108
         self.workspace = workspace
+        self._sandbox = Workspace(root=workspace)
 
     def reset(self, seed: int) -> dict[str, Any]:
         return {"workspace": self.workspace, "seed": seed}
@@ -26,9 +30,13 @@ class ToolEnvironment:
         if tool == "read_file":
             path = args.get("path", "")
             try:
-                with open(path) as f:
+                self._sandbox.validate_path(path)
+                with open(path) as f:  # noqa: S311 — sandbox validated
                     content = f.read()
                 info["content"] = content
+                return state, 0.0, False, info
+            except PermissionError as e:
+                info["error"] = str(e)
                 return state, 0.0, False, info
             except FileNotFoundError:
                 info["error"] = "file not found"
@@ -38,10 +46,16 @@ class ToolEnvironment:
             path = args.get("path", "")
             content = args.get("content", "")
             try:
+                self._sandbox.validate_path(path)
+                import os
+
                 os.makedirs(os.path.dirname(path), exist_ok=True)
-                with open(path, "w") as f:
+                with open(path, "w") as f:  # noqa: S311 — sandbox validated
                     f.write(content)
                 info["success"] = True
+                return state, 0.0, False, info
+            except PermissionError as e:
+                info["error"] = str(e)
                 return state, 0.0, False, info
             except Exception as e:
                 info["error"] = str(e)
@@ -60,10 +74,14 @@ class ToolEnvironment:
         }
 
     def _read_file(self, path: str) -> str:
-        with open(path) as f:
+        self._sandbox.validate_path(path)
+        with open(path) as f:  # noqa: S311 — sandbox validated
             return f.read()
 
     def _write_file(self, path: str, content: str) -> None:
+        self._sandbox.validate_path(path)
+        import os
+
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w") as f:
+        with open(path, "w") as f:  # noqa: S311 — sandbox validated
             f.write(content)
