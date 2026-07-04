@@ -6,22 +6,32 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install ruff mypy pydantic
+      # Pinned to match pyproject.toml lower bounds; update intentionally.
+      - run: pip install "ruff==0.11.6" "mypy==1.15.0" "pydantic>=2.0"
       - run: ruff check src/ tests/
       - run: ruff format --check src/ tests/
       - run: mypy src/ --ignore-missing-imports
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,22 +39,24 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -e ".[dev]"
-      - run: pytest tests/ -v --tb=short --cov=autoharness --cov-report=term-missing --cov-report=xml
+      - run: pytest tests/ -v --tb=short --cov=autoharness --cov-report=term-missing
 
   security:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install bandit[toml] safety
-      - name: Install gitleaks
-        run: |
-          GITLEAKS_VERSION="8.18.4"
-          wget -q "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -O /tmp/gitleaks.tar.gz
-          sudo tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks
+      - run: pip install "bandit[toml]>=1.8.0" "safety>=3.0"
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install shellcheck
-        run: sudo apt-get install -y shellcheck
-      - run: bash scripts/security-scan.sh --quiet
+        run: sudo apt-get update -qq && sudo apt-get install -y shellcheck
+      - name: Run shellcheck on scripts
+        run: shellcheck scripts/*.sh
+      - name: Run security scan
+        run: bash scripts/security-scan.sh --quiet
