@@ -111,18 +111,24 @@ Workflow: `.github/workflows/ci.yml`
 
 ## Branching
 
-Branch per slice. Merge to main only when all tests in that slice are green.
+Branch per slice. Never merge directly to main.
+
+**Workflow:**
+1. Create a feature branch: `git checkout -b slice/N-name`
+2. Implement with TDD (red → green → refactor)
+3. Push the branch: `git push origin slice/N-name`
+4. Create a PR on GitHub — CI must pass (lint, test, security)
+5. Merge via GitHub after checks pass
 
 ```
-git checkout -b slice/1-ir-types
-# ... work ...
-pytest tests/ir/  # must pass
-git add . && git commit -m "test(ir): add UPIR tests"
-# ... implement ...
-pytest tests/ir/  # must pass
-git commit -m "feat(ir): implement UPIR models"
-git checkout main && git merge slice/1-ir-types
+git checkout -b slice/3-trace-ir
+# ... TDD cycle ...
+pytest tests/  # all green
+git push origin slice/3-trace-ir
+# → open PR on GitHub → CI runs → merge after green
 ```
+
+**Ground rule:** Direct pushes to `main` are prohibited. All changes go through a PR with passing CI.
 
 ## Conventions
 
