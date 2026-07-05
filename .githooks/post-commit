@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# post-commit hook — Run violation checks and update tracking after each commit.
+# Installed at .githooks/post-commit
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+VIOLATIONS_SCRIPT="$REPO_ROOT/scripts/update-violations.sh"
+
+if [[ -f "$VIOLATIONS_SCRIPT" ]]; then
+    bash "$VIOLATIONS_SCRIPT" --quiet
+fi

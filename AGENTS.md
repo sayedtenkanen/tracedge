@@ -36,6 +36,12 @@ ruff format src/ tests/
 # Type check
 mypy src/
 
+# Violation tracking — run all checks, output JSON
+bash scripts/check-violations.sh
+
+# Violation tracking — update violations.json with results
+bash scripts/update-violations.sh
+
 # Coverage
 pytest --cov=autoharness --cov-report=term-missing
 
