@@ -5,15 +5,15 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CriticOutput(BaseModel):
     """Structured feedback from the Critic."""
 
-    failure_clusters: list[dict[str, Any]] = []
-    legality_violations: list[dict[str, Any]] = []
-    inefficiency_patterns: list[dict[str, Any]] = []
+    failure_clusters: list[dict[str, Any]] = Field(default_factory=list)
+    legality_violations: list[dict[str, Any]] = Field(default_factory=list)
+    inefficiency_patterns: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class Critic:

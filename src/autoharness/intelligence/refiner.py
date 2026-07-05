@@ -69,8 +69,8 @@ class Refiner:
             )
 
         raise ValueError(
-            f"Refiner failed to produce valid code after {self.max_retries} retries: {last_error}"
-        )
+            f"Refiner failed to produce valid code after {self.max_retries} retries"
+        ) from last_error
 
     def _build_prompt(self, harness: Harness, feedback: CriticOutput) -> str:
         """Build the LLM prompt from harness code and critic feedback."""

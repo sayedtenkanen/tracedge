@@ -20,8 +20,9 @@ class TestCriticFailureClustering:
         ]
         critic = Critic()
         output = critic.analyze(traces)
-        assert len(output.failure_clusters) >= 1
-        assert any("timeout" in c["root_cause"].lower() for c in output.failure_clusters)
+        timeout_clusters = [c for c in output.failure_clusters if c["root_cause"] == "TimeoutError"]
+        assert timeout_clusters, "Expected a failure cluster with root_cause 'TimeoutError'"
+        assert timeout_clusters[0]["count"] == 2
 
     def test_clusters_empty_trace(self) -> None:
         critic = Critic()
@@ -40,6 +41,8 @@ class TestCriticFailureClustering:
         critic = Critic()
         output = critic.analyze(traces)
         assert output.failure_clusters == []
+        assert output.legality_violations == []
+        assert output.inefficiency_patterns == []
 
 
 class TestCriticLegalityViolations:
@@ -85,6 +88,14 @@ class TestCriticInefficiencyPatterns:
         output = critic.analyze(traces)
         assert output.inefficiency_patterns == []
 
+    def test_custom_inefficiency_threshold(self) -> None:
+        traces = [
+            [{"node_id": f"n{i}", "kind": "act"} for i in range(4)],
+        ]
+        critic = Critic(inefficiency_threshold=3)
+        output = critic.analyze(traces)
+        assert len(output.inefficiency_patterns) >= 1
+
 
 class TestCriticMultipleTraces:
     """Critic consolidates across multiple rollout traces."""
@@ -116,3 +127,9 @@ class TestCriticOutputModel:
         assert output.failure_clusters == []
         assert output.legality_violations == []
         assert output.inefficiency_patterns == []
+
+    def test_no_shared_mutable_defaults(self) -> None:
+        a = CriticOutput()
+        b = CriticOutput()
+        a.failure_clusters.append({"root_cause": "test", "count": 1})
+        assert b.failure_clusters == []
