@@ -1,7 +1,8 @@
-"""Tic-Tac-Toe demo — GameEnvironment with UPIR VM."""
+"""Tic-Tac-Toe demo — GameEnvironment with UPIR VM and Reward scoring."""
 
 from autoharness.environment.game_env import GameEnvironment
 from autoharness.ir.upir import UPIR, Edge
+from autoharness.reward.scorer import score_trace, value
 from autoharness.runtime.vm import VM
 
 
@@ -68,8 +69,14 @@ def main() -> None:
                 print("  Draw!")
             break
 
+    # Score the full trace with the Reward Engine
+    r = score_trace(trace, env_kind="game")
+    v = value(r, env_kind="game")
+    print(f"\nReward vector: {r.model_dump()}")
+    print(f"Scalar value:  {v:.3f}")
+
     stats = env.get_stats()
-    print(f"\nStats: {stats}")
+    print(f"Stats: {stats}")
 
 
 if __name__ == "__main__":
