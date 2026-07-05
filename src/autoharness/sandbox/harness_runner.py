@@ -49,6 +49,13 @@ _RESTRICTED_BUILTINS = {
     "super": super,
     "tuple": tuple,
     "type": type,
+    "Exception": Exception,
+    "RuntimeError": RuntimeError,
+    "ValueError": ValueError,
+    "TypeError": TypeError,
+    "KeyError": KeyError,
+    "IndexError": IndexError,
+    "StopIteration": StopIteration,
     "zip": zip,
 }
 
