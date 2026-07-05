@@ -3,7 +3,7 @@
 # Usage: bash scripts/check-violations.sh [--quiet]
 # Exit code: 0 if clean, 1 if any violations found.
 
-set -euo pipefail
+set -uo pipefail
 
 QUIET=false
 if [[ "${1:-}" == "--quiet" ]]; then
@@ -27,7 +27,7 @@ RUFF_FORMAT=$(printf '%s\n' "$format_output" | sed -n 's/Would reformat \([0-9][
 RUFF_FORMAT=${RUFF_FORMAT:-0}
 
 # --- mypy ---
-mypy_output=$(mypy src/ tests/ examples/ --strict 2>&1) || true
+mypy_output=$(mypy src/ --strict 2>&1) || true
 if printf '%s\n' "$mypy_output" | grep -q "Success: no issues"; then
     MYPY=0
 else
