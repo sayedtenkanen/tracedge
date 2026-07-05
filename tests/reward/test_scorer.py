@@ -6,7 +6,7 @@ from autoharness.reward.scorer import Reward, score_trace
 class TestRewardVectorSchema:
     """Reward has task_success, efficiency, safety, skill_gain, legality."""
 
-    def test_reward_has_all_fields(self):
+    def test_reward_has_all_fields(self) -> None:
         r = Reward()
         assert hasattr(r, "task_success")
         assert hasattr(r, "efficiency")
@@ -14,7 +14,7 @@ class TestRewardVectorSchema:
         assert hasattr(r, "skill_gain")
         assert hasattr(r, "legality")
 
-    def test_reward_defaults(self):
+    def test_reward_defaults(self) -> None:
         r = Reward()
         assert r.task_success == 0.0
         assert r.efficiency == 1.0
@@ -26,21 +26,21 @@ class TestRewardVectorSchema:
 class TestRewardSuccessDetection:
     """Successful task completion → task_success=1.0."""
 
-    def test_success_detected(self):
+    def test_success_detected(self) -> None:
         trace = [
             {"node_id": "n1", "kind": "harness_call", "verdict": "pass"},
         ]
         r = score_trace(trace)
         assert r.task_success == 1.0
 
-    def test_failure_detected(self):
+    def test_failure_detected(self) -> None:
         trace = [
             {"node_id": "n1", "kind": "harness_call", "verdict": "fail"},
         ]
         r = score_trace(trace)
         assert r.task_success == 0.0
 
-    def test_no_harness_call(self):
+    def test_no_harness_call(self) -> None:
         trace = [
             {"node_id": "n1", "kind": "observe"},
         ]
@@ -51,7 +51,7 @@ class TestRewardSuccessDetection:
 class TestRewardEfficiencyPenalty:
     """More steps → lower efficiency."""
 
-    def test_fewer_steps_higher_efficiency(self):
+    def test_fewer_steps_higher_efficiency(self) -> None:
         short = [{"node_id": "n1", "kind": "observe"}]
         long_ = [
             {"node_id": "n1", "kind": "observe"},
@@ -63,7 +63,7 @@ class TestRewardEfficiencyPenalty:
         r_long = score_trace(long_)
         assert r_short.efficiency > r_long.efficiency
 
-    def test_efficiency_clamped(self):
+    def test_efficiency_clamped(self) -> None:
         trace = [{"node_id": "n1", "kind": "observe"}] * 200
         r = score_trace(trace)
         assert 0.0 <= r.efficiency <= 1.0
@@ -72,12 +72,12 @@ class TestRewardEfficiencyPenalty:
 class TestRewardSafetyScore:
     """Unsafe actions → safety < 1.0."""
 
-    def test_safe_trace(self):
+    def test_safe_trace(self) -> None:
         trace = [{"node_id": "n1", "kind": "observe"}]
         r = score_trace(trace)
         assert r.safety == 1.0
 
-    def test_raised_exception_reduces_safety(self):
+    def test_raised_exception_reduces_safety(self) -> None:
         trace = [
             {"node_id": "n1", "kind": "harness_call", "verdict": "pass", "raised": "ValueError"},
         ]
@@ -88,7 +88,7 @@ class TestRewardSafetyScore:
 class TestRewardLegalityGameEnv:
     """GameEnvironment rewards legality."""
 
-    def test_legal_actions_high_legality(self):
+    def test_legal_actions_high_legality(self) -> None:
         trace = [
             {"node_id": "n1", "kind": "act", "legal": True},
             {"node_id": "n2", "kind": "act", "legal": True},
@@ -96,19 +96,20 @@ class TestRewardLegalityGameEnv:
         r = score_trace(trace, env_kind="game")
         assert r.legality == 1.0
 
-    def test_illegal_actions_low_legality(self):
+    def test_illegal_actions_low_legality(self) -> None:
         trace = [
             {"node_id": "n1", "kind": "act", "legal": True},
             {"node_id": "n2", "kind": "act", "legal": False},
         ]
         r = score_trace(trace, env_kind="game")
+        assert r.legality is not None
         assert r.legality < 1.0
 
 
 class TestRewardLegalityNoneToolEnv:
     """ToolEnvironment → legality is None."""
 
-    def test_tool_env_legality_none(self):
+    def test_tool_env_legality_none(self) -> None:
         trace = [{"node_id": "n1", "kind": "act"}]
         r = score_trace(trace, env_kind="tool")
         assert r.legality is None

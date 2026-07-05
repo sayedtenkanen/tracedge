@@ -6,7 +6,7 @@ import pytest
 class TestHarness:
     """Harness IR model: kind, code, schemas, effects, guard_policy."""
 
-    def test_harness_construction(self):
+    def test_harness_construction(self) -> None:
         from autoharness.ir.harness import Harness
 
         h = Harness(
@@ -17,7 +17,7 @@ class TestHarness:
         assert h.kind == "action_verifier"
         assert h.version == 1
 
-    def test_harness_kind_options(self):
+    def test_harness_kind_options(self) -> None:
         from autoharness.ir.harness import Harness
 
         for kind in ("action_filter", "action_verifier", "policy"):
@@ -28,7 +28,7 @@ class TestHarness:
             )
             assert h.kind == kind
 
-    def test_harness_invalid_kind_rejected(self):
+    def test_harness_invalid_kind_rejected(self) -> None:
         from autoharness.ir.harness import Harness
 
         with pytest.raises(ValueError):
@@ -38,7 +38,7 @@ class TestHarness:
                 effects={"filesystem": False, "network": False, "llm_calls": 0},
             )
 
-    def test_harness_guard_policy_defaults(self):
+    def test_harness_guard_policy_defaults(self) -> None:
         from autoharness.ir.harness import Harness
 
         h = Harness(
@@ -53,7 +53,7 @@ class TestHarness:
 class TestHarnessResult:
     """HarnessResult: verdict, raised, cost."""
 
-    def test_harness_result_construction(self):
+    def test_harness_result_construction(self) -> None:
         from autoharness.ir.harness import HarnessResult
 
         r = HarnessResult(verdict=True, raised=None, cost=0.0)
@@ -61,7 +61,7 @@ class TestHarnessResult:
         assert r.raised is None
         assert r.cost == 0.0
 
-    def test_harness_result_with_exception(self):
+    def test_harness_result_with_exception(self) -> None:
         from autoharness.ir.harness import HarnessResult
 
         r = HarnessResult(verdict=False, raised="ValueError", cost=0.1)

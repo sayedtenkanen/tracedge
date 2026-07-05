@@ -6,12 +6,12 @@ from autoharness.reward.scorer import Reward, value
 class TestValueFunctionGameEnv:
     """value() uses legality + task_success weights for game env."""
 
-    def test_game_env_weights(self):
+    def test_game_env_weights(self) -> None:
         r = Reward(task_success=1.0, legality=1.0)
         v = value(r, env_kind="game")
         assert v > 0.8
 
-    def test_game_env_illegal_penalizes(self):
+    def test_game_env_illegal_penalizes(self) -> None:
         r = Reward(task_success=1.0, legality=0.0)
         v = value(r, env_kind="game")
         assert v < 0.8  # legality=0.0 reduces from 1.0
@@ -20,12 +20,12 @@ class TestValueFunctionGameEnv:
 class TestValueFunctionToolEnv:
     """value() uses task_success + efficiency weights for tool env."""
 
-    def test_tool_env_weights(self):
+    def test_tool_env_weights(self) -> None:
         r = Reward(task_success=1.0, efficiency=1.0)
         v = value(r, env_kind="tool")
         assert v > 0.8
 
-    def test_tool_env_inefficient_penalizes(self):
+    def test_tool_env_inefficient_penalizes(self) -> None:
         r = Reward(task_success=1.0, efficiency=0.2)
         v = value(r, env_kind="tool")
         assert v < 0.9  # efficiency=0.2 reduces from 1.0
@@ -34,12 +34,12 @@ class TestValueFunctionToolEnv:
 class TestValueClamped:
     """value() output always in [0, 1]."""
 
-    def test_clamped_low(self):
+    def test_clamped_low(self) -> None:
         r = Reward(task_success=0.0, efficiency=0.0, safety=0.0)
         v = value(r, env_kind="tool")
         assert 0.0 <= v <= 1.0
 
-    def test_clamped_high(self):
+    def test_clamped_high(self) -> None:
         r = Reward(task_success=1.0, efficiency=1.0, safety=1.0, legality=1.0)
         v = value(r, env_kind="game")
         assert 0.0 <= v <= 1.0
@@ -48,7 +48,7 @@ class TestValueClamped:
 class TestValueDeterministic:
     """Same reward + same weights → same value."""
 
-    def test_deterministic(self):
+    def test_deterministic(self) -> None:
         r = Reward(task_success=0.7, efficiency=0.8, safety=0.9)
         v1 = value(r, env_kind="tool")
         v2 = value(r, env_kind="tool")
@@ -58,7 +58,7 @@ class TestValueDeterministic:
 class TestValueLegalityNoneFallback:
     """When legality is None, falls back to efficiency."""
 
-    def test_none_fallback_to_efficiency(self):
+    def test_none_fallback_to_efficiency(self) -> None:
         r_with = Reward(task_success=1.0, efficiency=0.5, legality=0.5)
         r_none = Reward(task_success=1.0, efficiency=0.5, legality=None)
         v_with = value(r_with, env_kind="game")
