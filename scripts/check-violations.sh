@@ -3,7 +3,7 @@
 # Usage: bash scripts/check-violations.sh [--quiet]
 # Exit code: 0 if clean, 1 if any violations found.
 
-set -euo pipefail
+set -uo pipefail
 
 QUIET=false
 if [[ "${1:-}" == "--quiet" ]]; then
