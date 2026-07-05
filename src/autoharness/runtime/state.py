@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from typing import Any
 
 
@@ -24,4 +25,5 @@ class State:
             self._data[node_id].update(updates)
 
     def flatten(self) -> dict[str, dict[str, Any]]:
-        return dict(self._data)
+        """Return a deep copy of the state to prevent mutation by callers."""
+        return copy.deepcopy(self._data)

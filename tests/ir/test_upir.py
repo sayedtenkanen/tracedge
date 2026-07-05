@@ -1,7 +1,6 @@
 import pytest
-from pydantic import ValidationError
-
 from autoharness.ir.upir import UPIR, Edge
+from pydantic import ValidationError
 
 
 class TestUPIRConstruction:
@@ -28,7 +27,7 @@ class TestUPIRConstruction:
                 "n1": {"kind": "observe", "node_id": "n1"},
                 "n2": {"kind": "act", "node_id": "n2"},
             },
-            edges=[Edge(from_="n1", to="n2", kind="sequential")],  # type: ignore[call-arg]
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],
             harness_table={},
             skill_table={},
         )
@@ -62,7 +61,7 @@ class TestUPIRConstruction:
             UPIR(
                 entry="n1",
                 nodes={"n1": {"kind": "observe", "node_id": "n1"}},
-                edges=[Edge(from_="n1", to="ghost", kind="sequential")],  # type: ignore[call-arg]
+                edges=[Edge(from_="n1", to="ghost", kind="sequential")],
                 harness_table={},
                 skill_table={},
             )
@@ -92,19 +91,42 @@ class TestEdge:
     """Test Edge model."""
 
     def test_edge_sequential(self) -> None:
-        e = Edge(from_="a", to="b", kind="sequential")  # type: ignore[call-arg]
+        e = Edge(from_="a", to="b", kind="sequential")
         assert e.from_ == "a"
         assert e.to == "b"
         assert e.kind == "sequential"
 
     def test_edge_branch(self) -> None:
-        e = Edge(from_="a", to="b", kind="branch")  # type: ignore[call-arg]
+        e = Edge(from_="a", to="b", kind="branch")
         assert e.kind == "branch"
 
     def test_edge_fallthrough(self) -> None:
-        e = Edge(from_="a", to="b", kind="fallthrough")  # type: ignore[call-arg]
+        e = Edge(from_="a", to="b", kind="fallthrough")
         assert e.kind == "fallthrough"
 
     def test_edge_invalid_kind_accepted(self) -> None:
-        e = Edge(from_="a", to="b", kind="invalid")  # type: ignore[call-arg]
+        e = Edge(from_="a", to="b", kind="invalid")
         assert e.kind == "invalid"
+
+    def test_edge_from_dict_with_alias(self) -> None:
+        e = Edge.model_validate({"from": "a", "to": "b", "kind": "sequential"})
+        assert e.from_ == "a"
+
+    def test_edge_dump_by_alias(self) -> None:
+        e = Edge(from_="a", to="b", kind="sequential")
+        d = e.model_dump(by_alias=True)
+        assert d == {"from": "a", "to": "b", "kind": "sequential"}
+
+    def test_edge_round_trip(self) -> None:
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {"kind": "observe", "node_id": "n1"},
+                "n2": {"kind": "act", "node_id": "n2"},
+            },
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],
+        )
+        dumped = upir.model_dump()
+        restored = UPIR.model_validate(dumped)
+        assert restored.edges[0].from_ == "n1"
+        assert restored.edges[0].to == "n2"

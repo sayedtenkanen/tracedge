@@ -43,3 +43,10 @@ class TestStateNamespacing:
         s.set("n2", "b", 2)
         flat = s.flatten()
         assert flat == {"n1": {"a": 1}, "n2": {"b": 2}}
+
+    def test_flatten_does_not_leak_mutable_references(self) -> None:
+        s = State()
+        s.set("n1", "data", {"nested": "value"})
+        flat = s.flatten()
+        flat["n1"]["data"]["nested"] = "mutated"
+        assert s.get("n1", "data") == {"nested": "value"}

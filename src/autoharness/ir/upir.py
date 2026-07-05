@@ -10,7 +10,7 @@ SkillID = str
 
 
 class Edge(BaseModel):
-    from_: NodeID = Field(..., alias="from")
+    from_: NodeID = Field(..., validation_alias="from", serialization_alias="from")
     to: NodeID
     kind: str
 

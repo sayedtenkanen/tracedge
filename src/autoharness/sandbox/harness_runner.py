@@ -49,6 +49,13 @@ _RESTRICTED_BUILTINS = {
     "super": super,
     "tuple": tuple,
     "type": type,
+    "Exception": Exception,
+    "RuntimeError": RuntimeError,
+    "ValueError": ValueError,
+    "TypeError": TypeError,
+    "KeyError": KeyError,
+    "IndexError": IndexError,
+    "StopIteration": StopIteration,
     "zip": zip,
 }
 
@@ -95,7 +102,7 @@ def run_harness(
         return {"verdict": "timeout", "outputs": {}, "raised": "Timeout", "timed_out": True}
 
     if raised is not None:
-        return {"verdict": "error", "outputs": {}, "raised": raised}
+        return {"verdict": "error", "outputs": {}, "raised": f"{type(raised).__name__}: {raised}"}
 
     # Collect non-builtin, non-dunder outputs
     for key, val in sandbox_globals.items():

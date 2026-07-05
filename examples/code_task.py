@@ -20,7 +20,7 @@ class SimpleLLM:
 
 
 def main() -> None:
-    env = ToolEnvironment(workspace="/tmp/autoharness_demo")
+    env = ToolEnvironment(workspace="/tmp/autoharness_demo")  # nosec B108
 
     # Build a UPIR: observe → think → act
     upir = UPIR(
@@ -41,14 +41,14 @@ def main() -> None:
                 "node_id": "execute",
                 "tool": "write_file",
                 "args": {
-                    "path": "/tmp/autoharness_demo/output.txt",
+                    "path": "/tmp/autoharness_demo/output.txt",  # nosec B108
                     "content": "Hello from AutoHarness!",
                 },
             },
         },
         edges=[
-            Edge(from_="observe", to="decide", kind="sequential"),  # type: ignore[call-arg]
-            Edge(from_="decide", to="execute", kind="sequential"),  # type: ignore[call-arg]
+            Edge(from_="observe", to="decide", kind="sequential"),
+            Edge(from_="decide", to="execute", kind="sequential"),
         ],
     )
 

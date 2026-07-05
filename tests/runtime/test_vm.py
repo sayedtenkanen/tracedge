@@ -72,8 +72,8 @@ class TestVMExecuteBranch:
                 "n3": {"kind": "act", "node_id": "n3"},
             },
             edges=[
-                Edge(from_="n1", to="n2", kind="branch"),  # type: ignore[call-arg]
-                Edge(from_="n1", to="n3", kind="branch"),  # type: ignore[call-arg]
+                Edge(from_="n1", to="n2", kind="branch"),
+                Edge(from_="n1", to="n3", kind="branch"),
             ],
             harness_table={},
             skill_table={},
@@ -125,7 +125,7 @@ class TestVMTermination:
                 "n1": {"kind": "observe", "node_id": "n1"},
                 "n2": {"kind": "observe", "node_id": "n2"},
             },
-            edges=[Edge(from_="n1", to="n2", kind="sequential")],  # type: ignore[call-arg]
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],
             harness_table={},
             skill_table={},
         )

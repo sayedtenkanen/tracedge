@@ -31,7 +31,7 @@ class ToolEnvironment:
             path = args.get("path", "")
             try:
                 self._sandbox.validate_path(path)
-                with open(path) as f:  # noqa: S311 — sandbox validated
+                with open(path) as f:  # path validated by sandbox
                     content = f.read()
                 info["content"] = content
                 return state, 0.0, False, info
@@ -50,7 +50,7 @@ class ToolEnvironment:
                 import os
 
                 os.makedirs(os.path.dirname(path), exist_ok=True)
-                with open(path, "w") as f:  # noqa: S311 — sandbox validated
+                with open(path, "w") as f:  # path validated by sandbox
                     f.write(content)
                 info["success"] = True
                 return state, 0.0, False, info
@@ -75,7 +75,7 @@ class ToolEnvironment:
 
     def _read_file(self, path: str) -> str:
         self._sandbox.validate_path(path)
-        with open(path) as f:  # noqa: S311 — sandbox validated
+        with open(path) as f:  # path validated by sandbox
             return f.read()
 
     def _write_file(self, path: str, content: str) -> None:
@@ -83,5 +83,5 @@ class ToolEnvironment:
         import os
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w") as f:  # noqa: S311 — sandbox validated
+        with open(path, "w") as f:  # path validated by sandbox
             f.write(content)

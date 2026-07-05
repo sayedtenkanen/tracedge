@@ -26,7 +26,7 @@ class TestTraceEventEmitted:
                 "n1": {"kind": "observe", "node_id": "n1", "query": "test"},
                 "n2": {"kind": "act", "node_id": "n2", "tool": "read_file"},
             },
-            edges=[Edge(from_="n1", to="n2", kind="sequential")],  # type: ignore[call-arg]
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],
         )
         vm = VM(upir=upir, llm=FakeLLM())
         trace = vm.run()
@@ -163,7 +163,7 @@ class TestCostAccumulated:
                 "n1": {"kind": "observe", "node_id": "n1"},
                 "n2": {"kind": "act", "node_id": "n2"},
             },
-            edges=[Edge(from_="n1", to="n2", kind="sequential")],  # type: ignore[call-arg]
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],
         )
         vm = VM(upir=upir, llm=FakeLLM())
         trace = vm.run()

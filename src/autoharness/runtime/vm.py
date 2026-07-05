@@ -136,14 +136,17 @@ class VM:
         node_id = node.node_id
         harness_id = getattr(node, "harness_id", "")
 
-        # Look up harness code from the UPIR harness table
+        # Look up harness code and effects from the UPIR harness table
         harness_entry = self.upir.harness_table.get(harness_id, "")
+        harness_code = ""
+        effects: dict[str, bool] | None = None
         if harness_entry is None or harness_entry == "":
             harness_code = ""
         elif isinstance(harness_entry, dict):
             if "code" not in harness_entry:
                 raise ValueError(f"Harness '{harness_id}' in harness_table is missing 'code' key")
             harness_code = harness_entry["code"]
+            effects = harness_entry.get("effects")
         else:
             harness_code = str(harness_entry)
 
@@ -154,6 +157,7 @@ class VM:
             harness_code,
             state=self.state.flatten(),
             environment=self.environment,
+            effects=effects,
         )
 
         self.state.set(node_id, "harness_id", harness_id)
