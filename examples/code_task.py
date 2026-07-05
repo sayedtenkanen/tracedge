@@ -40,7 +40,10 @@ def main() -> None:
                 "kind": "act",
                 "node_id": "execute",
                 "tool": "write_file",
-                "args": {"path": "/tmp/autoharness_demo/output.txt", "content": "Hello from AutoHarness!"},
+                "args": {
+                    "path": "/tmp/autoharness_demo/output.txt",
+                    "content": "Hello from AutoHarness!",
+                },
             },
         },
         edges=[

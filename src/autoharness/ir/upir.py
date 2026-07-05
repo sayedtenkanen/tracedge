@@ -38,7 +38,10 @@ class UPIR(BaseModel):
     @classmethod
     def coerce_nodes(cls, v: dict[str, Any]) -> dict[str, UPIRNode]:
         """Allow dict values to be coerced to UPIRNode."""
-        return {k: v if isinstance(v, UPIRNode) else UPIRNode.model_validate(v) for k, v in v.items()}
+        result: dict[str, UPIRNode] = {}
+        for k, val in v.items():
+            result[k] = val if isinstance(val, UPIRNode) else UPIRNode.model_validate(val)
+        return result
 
     @property
     def schema_name(self) -> str:
