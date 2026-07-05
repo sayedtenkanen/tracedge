@@ -32,7 +32,7 @@ def sample_upir() -> UPIR:
             "n1": {"kind": "observe", "node_id": "n1", "query": "test"},
             "n2": {"kind": "act", "node_id": "n2", "tool": "read_file"},
         },
-        edges=[Edge(from_="n1", to="n2", kind="sequential")],  # type: ignore[call-arg]
+        edges=[Edge(from_="n1", to="n2", kind="sequential")],
         harness_table={},
         skill_table={},
     )
