@@ -108,3 +108,26 @@ class TestEdge:
     def test_edge_invalid_kind_accepted(self) -> None:
         e = Edge(from_="a", to="b", kind="invalid")
         assert e.kind == "invalid"
+
+    def test_edge_from_dict_with_alias(self) -> None:
+        e = Edge.model_validate({"from": "a", "to": "b", "kind": "sequential"})
+        assert e.from_ == "a"
+
+    def test_edge_dump_by_alias(self) -> None:
+        e = Edge(from_="a", to="b", kind="sequential")
+        d = e.model_dump(by_alias=True)
+        assert d == {"from": "a", "to": "b", "kind": "sequential"}
+
+    def test_edge_round_trip(self) -> None:
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {"kind": "observe", "node_id": "n1"},
+                "n2": {"kind": "act", "node_id": "n2"},
+            },
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],
+        )
+        dumped = upir.model_dump()
+        restored = UPIR.model_validate(dumped)
+        assert restored.edges[0].from_ == "n1"
+        assert restored.edges[0].to == "n2"
