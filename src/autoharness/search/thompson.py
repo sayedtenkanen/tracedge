@@ -117,7 +117,7 @@ class ThompsonTreeSearch:
         Returns:
             SearchResult with the best branch found.
         """
-        rng = random.Random(rng_seed)
+        rng = random.Random(rng_seed)  # nosec B311
         total_failures = 0
 
         if not self.branches:
