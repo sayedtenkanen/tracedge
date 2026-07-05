@@ -39,5 +39,5 @@ class TraceLog:
     def __len__(self) -> int:
         return len(self.events)
 
-    def __getitem__(self, idx: int) -> TraceEvent:
+    def __getitem__(self, idx: int | slice) -> TraceEvent | list[TraceEvent]:
         return self.events[idx]
