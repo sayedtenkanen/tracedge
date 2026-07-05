@@ -1,15 +1,25 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "autoharness"
 version = "0.1.0"
 description = "Probabilistic program compiler over UPIR with Thompson tree search"
+readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12"
+authors = [{name = "S Tenkanen"}]
+keywords = ["ai", "llm", "probabilistic-programming", "compiler", "reinforcement-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
-    "openai>=1.0",
-    "pydantic>=2.0",
+    "openai>=1.0,<3",
+    "pydantic>=2.0,<3",
 ]
 
 [project.optional-dependencies]
@@ -20,19 +30,28 @@ dev = [
     "mypy>=1.10.0",
     "pre-commit>=3.0",
     "bandit[toml]>=1.8.0",
-    "safety>=3.0",
-    "httpx>=0.24.0",
+    "pip-audit>=2.6",
 ]
+
+[project.urls]
+Homepage = "https://github.com/sayedtenkanen/auto-harnessessing"
+Repository = "https://github.com/sayedtenkanen/auto-harnessessing"
+Issues = "https://github.com/sayedtenkanen/auto-harnessessing/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["autoharness*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-ra --strict-config --strict-markers"
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
+plugins = ["pydantic.mypy"]
+warn_unused_configs = true
+show_error_codes = true
 
 [tool.ruff]
 line-length = 100
@@ -45,7 +64,5 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "A", "SIM", "TCH"]
 targets = ["src/autoharness"]
 exclude_dirs = ["tests"]
 # Skip specific checks:
-# B101: assert usage (fine in tests, not in src)
-# B105: hard-coded password strings (not applicable)
-# B311: random module usage (we use seeded random intentionally)
-skips = ["B101", "B105", "B311"]
+# B105: hard-coded password strings (not applicable to this codebase)
+skips = ["B105"]
