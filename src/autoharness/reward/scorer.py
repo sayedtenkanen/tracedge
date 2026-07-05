@@ -43,9 +43,15 @@ def score_trace(
 
 
 def _score_success(trace: list[dict[str, Any]]) -> float:
-    """1.0 if any harness_call has verdict='pass', else 0.0."""
+    """1.0 if any harness_call has verdict='ok', else 0.0.
+
+    Verdict vocabulary (boundary contract):
+    - 'ok': harness executed successfully
+    - 'error': harness raised an exception
+    - 'timeout': harness exceeded max_runtime_ms
+    """
     for event in trace:
-        if event.get("kind") == "harness_call" and event.get("verdict") == "pass":
+        if event.get("kind") == "harness_call" and event.get("verdict") == "ok":
             return 1.0
     return 0.0
 
