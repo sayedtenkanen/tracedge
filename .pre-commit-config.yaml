@@ -26,3 +26,12 @@ repos:
       - id: bandit
         args: [-c, pyproject.toml]
         additional_dependencies: ["bandit[toml]"]
+
+  # Local — violation tracking (replaces .githooks/post-commit)
+  - repo: local
+    hooks:
+      - id: update-violations
+        name: update-violations
+        entry: bash scripts/update-violations.sh --quiet
+        language: system
+        stages: [post-commit]

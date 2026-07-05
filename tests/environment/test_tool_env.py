@@ -35,6 +35,6 @@ class TestToolEnvironment:
             state, {"tool": "read_file", "args": {"path": "/tmp/nonexistent"}}
         )
         assert new_state is not None
-        assert isinstance(reward, (int, float))
+        assert isinstance(reward, int | float)
         assert isinstance(done, bool)
         assert isinstance(info, dict)

@@ -47,7 +47,7 @@ def check_harness_code(code: str, effects: dict[str, bool] | None = None) -> Non
 
     for node in ast.walk(tree):
         # filesystem access via import
-        if isinstance(node, (ast.Import, ast.ImportFrom)):
+        if isinstance(node, ast.Import | ast.ImportFrom):
             if not allow_fs:
                 _check_fs_import(node)
             if not allow_net:
