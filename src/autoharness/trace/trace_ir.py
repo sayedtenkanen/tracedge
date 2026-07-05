@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TraceEvent(BaseModel):
@@ -12,8 +12,8 @@ class TraceEvent(BaseModel):
 
     node_id: str = ""
     kind: str = ""
-    inputs: dict[str, Any] = {}
-    outputs: dict[str, Any] = {}
+    inputs: dict[str, Any] = Field(default_factory=dict)
+    outputs: dict[str, Any] = Field(default_factory=dict)
     cost: float = 0.0
     legal: bool | None = None
     # HarnessCall-specific fields
@@ -24,7 +24,7 @@ class TraceEvent(BaseModel):
     condition: str | None = None
     taken: str | None = None
     # Generic extra fields
-    extra: dict[str, Any] = {}
+    extra: dict[str, Any] = Field(default_factory=dict)
 
 
 class TraceLog:
