@@ -279,7 +279,7 @@ DEFAULT_CONFIG = {
     "min_pattern_occurrences": 3,
     "skill_prune_success_threshold": 0.3,
     "workspace_root": "/tmp/workspace",
-    "convergence_threshold": 8.0,
+    "convergence_threshold": 0.8,
 }
 ```
 
