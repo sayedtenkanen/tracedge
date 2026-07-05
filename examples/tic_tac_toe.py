@@ -44,6 +44,8 @@ def main() -> None:
 
     print("=== Tic-Tac-Toe Demo ===\n")
 
+    trace: list[dict[str, object]] = []
+
     # Play a few moves
     for turn in range(5):
         legal = env.legal_actions(state)
