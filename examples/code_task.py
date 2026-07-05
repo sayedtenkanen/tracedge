@@ -47,8 +47,8 @@ def main() -> None:
             },
         },
         edges=[
-            Edge(**{"from": "observe", "to": "decide", "kind": "sequential"}),
-            Edge(**{"from": "decide", "to": "execute", "kind": "sequential"}),
+            Edge(from_="observe", to="decide", kind="sequential"),  # type: ignore[call-arg]
+            Edge(from_="decide", to="execute", kind="sequential"),  # type: ignore[call-arg]
         ],
     )
 

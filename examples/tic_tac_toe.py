@@ -36,7 +36,7 @@ def main() -> None:
                 "tool": "place_move",
             },
         },
-        edges=[Edge(**{"from": "observe", "to": "act", "kind": "sequential"})],
+        edges=[Edge(from_="observe", to="act", kind="sequential")],  # type: ignore[call-arg]
     )
 
     llm = RandomPlayer()
