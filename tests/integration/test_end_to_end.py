@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from autoharness.intelligence.critic import Critic
-from autoharness.ir.upir import Edge, UPIR
+from autoharness.ir.harness import Harness
+from autoharness.ir.upir import UPIR
 from autoharness.reward.scorer import score_trace, value
 from autoharness.runtime.vm import VM
 from autoharness.search.thompson import Branch, ThompsonTreeSearch
@@ -22,7 +23,7 @@ class FakeLLM:
 
 
 class TestEndToEndHarnessCall:
-    """VM → trace → scorer with real harness code."""
+    """VM -> trace -> scorer with real harness code."""
 
     def test_successful_harness_scores_success(self) -> None:
         upir = UPIR(
@@ -58,7 +59,7 @@ class TestEndToEndHarnessCall:
 
 
 class TestEndToEndCritic:
-    """VM trace → Critic without crash."""
+    """VM trace -> Critic without crash."""
 
     def test_critic_on_real_vm_trace(self) -> None:
         upir = UPIR(
@@ -79,60 +80,30 @@ class TestEndToEndCritic:
 
 
 class TestEndToEndThompsonSearch:
- """Thompson search prefers working harness over broken one."""
+    """Thompson search prefers working harness over broken one."""
 
- def test_search_prefers_good_harness(self) -> None:
-     good_upir = UPIR(
-         entry="h1",
-         nodes={"h1": {"kind": "harness_call", "node_id": "h1", "harness_id": "g"}},
-         edges=[],
-         harness_table={"g": "result = 'ok'"},
-     )
-     bad_upir = UPIR(
-         entry="h1",
-         nodes={"h1": {"kind": "harness_call", "node_id": "h1", "harness_id": "b"}},
-         edges=[],
-         harness_table={"b": "raise ValueError('bad')"},
-     )
+    def test_search_prefers_good_harness(self) -> None:
+        good_branch = Branch(harness=Harness(kind="action_filter", code="result = 'ok'"))
+        bad_branch = Branch(
+            harness=Harness(kind="action_filter", code="raise ValueError('bad')")
+        )
 
-     def rollout(h, seed):
-         # Run the actual VM with this harness's code
-         upir = UPIR(
-             entry="h1",
-             nodes={"h1": {"kind": "harness_call", "node_id": "h1", "harness_id": "test"}},
-             edges=[],
-             harness_table={"test": h.code},
-         )
-         vm = VM(upir=upir, llm=FakeLLM(), seed=seed)
-         trace = vm.run()
-         r = score_trace(trace)
-         v = value(r)
-         failed = trace[0].get("verdict") != "ok"
-         return v, failed
+        def real_rollout(h: Harness, seed: int) -> tuple[float, bool]:
+            upir = UPIR(
+                entry="h1",
+                nodes={"h1": {"kind": "harness_call", "node_id": "h1", "harness_id": "t"}},
+                edges=[],
+                harness_table={"t": h.code},
+            )
+            vm = VM(upir=upir, llm=FakeLLM(), seed=seed)
+            trace = vm.run()
+            r = score_trace(trace)
+            v = value(r)
+            failed = trace[0].get("verdict") != "ok"
+            return v, failed
 
-     good_h = Branch(harness=good_upir.harness_table["g"])  # type: ignore[arg-type]
-     # Actually we need Harness objects, not strings
-     from autoharness.ir.harness import Harness
-
-     good_branch = Branch(harness=Harness(kind="action_filter", code="result = 'ok'"))
-     bad_branch = Branch(harness=Harness(kind="action_filter", code="raise ValueError('bad')"))
-
-     def real_rollout(h, seed):
-         upir = UPIR(
-             entry="h1",
-             nodes={"h1": {"kind": "harness_call", "node_id": "h1", "harness_id": "t"}},
-             edges=[],
-             harness_table={"t": h.code},
-         )
-         vm = VM(upir=upir, llm=FakeLLM(), seed=seed)
-         trace = vm.run()
-         r = score_trace(trace)
-         v = value(r)
-         failed = trace[0].get("verdict") != "ok"
-         return v, failed
-
-     search = ThompsonTreeSearch()
-     search.branches = [good_branch, bad_branch]
-     result = search.run(real_rollout, rng_seed=42)
-     assert result.best_branch is not None
-     assert result.best_branch.harness.code == "result = 'ok'"
+        search = ThompsonTreeSearch()
+        search.branches = [good_branch, bad_branch]
+        result = search.run(real_rollout, rng_seed=42)
+        assert result.best_branch is not None
+        assert result.best_branch.harness.code == "result = 'ok'"
