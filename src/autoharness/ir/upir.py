@@ -26,7 +26,7 @@ class UPIRNode(BaseModel):
 
 class UPIR(BaseModel):
     entry: NodeID
-    nodes: dict[NodeID, UPIRNode]
+    nodes: dict[NodeID, UPIRNode | dict[str, Any]]
     edges: list[Edge] = []
     harness_table: dict[str, Any] = {}
     skill_table: dict[str, Any] = {}
