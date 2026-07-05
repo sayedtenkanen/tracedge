@@ -51,10 +51,14 @@ def _score_success(trace: list[dict[str, Any]]) -> float:
 
 
 def _score_efficiency(num_steps: int, max_steps: int) -> float:
-    """1.0 for 1 step, decays toward 0 as steps approach max_steps."""
+    """1.0 for 1 step, decays toward 0 as steps approach max_steps.
+
+    `max_steps` is clamped to a minimum of 1 to avoid division by zero.
+    """
+    effective_max_steps = max(1, max_steps)
     if num_steps <= 1:
         return 1.0
-    return max(0.0, 1.0 - (num_steps - 1) / max_steps)
+    return max(0.0, 1.0 - (num_steps - 1) / effective_max_steps)
 
 
 def _score_safety(trace: list[dict[str, Any]]) -> float:
@@ -81,8 +85,8 @@ def value(reward: Reward, env_kind: str = "tool") -> float:
     Converts a Reward vector to a single float in [0, 1].
 
     Weights differ by environment kind:
-    - game: task_success=0.4, legality=0.4, safety=0.2
-    - tool: task_success=0.5, efficiency=0.3, safety=0.2
+    - game: task_success=0.5, legality=0.3, safety=0.2
+    - tool: task_success=0.6, efficiency=0.2, safety=0.2
     """
     if env_kind == "game":
         legality = reward.legality if reward.legality is not None else reward.efficiency

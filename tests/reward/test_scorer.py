@@ -84,6 +84,16 @@ class TestRewardSafetyScore:
         r = score_trace(trace)
         assert r.safety < 1.0
 
+    def test_multiple_exceptions_saturate_safety_at_zero(self) -> None:
+        trace = [
+            {"node_id": "n1", "kind": "harness_call", "verdict": "pass", "raised": "ValueError"},
+            {"node_id": "n2", "kind": "harness_call", "verdict": "pass", "raised": "RuntimeError"},
+            {"node_id": "n3", "kind": "harness_call", "verdict": "pass", "raised": "TypeError"},
+            {"node_id": "n4", "kind": "harness_call", "verdict": "pass", "raised": "IndexError"},
+        ]
+        r = score_trace(trace)
+        assert r.safety == 0.0
+
 
 class TestRewardLegalityGameEnv:
     """GameEnvironment rewards legality."""
@@ -104,6 +114,15 @@ class TestRewardLegalityGameEnv:
         r = score_trace(trace, env_kind="game")
         assert r.legality is not None
         assert r.legality < 1.0
+
+    def test_no_legality_flags_defaults_to_legal(self) -> None:
+        """When no events have a `legal` flag, legality defaults to 1.0."""
+        trace = [
+            {"node_id": "n1", "kind": "act"},
+            {"node_id": "n2", "kind": "act"},
+        ]
+        r = score_trace(trace, env_kind="game")
+        assert r.legality == 1.0
 
 
 class TestRewardLegalityNoneToolEnv:
