@@ -18,7 +18,7 @@ fi
 JSON_OUTPUT=$("$SCRIPT_DIR/check-violations.sh" --quiet 2>&1) || true
 
 # If the script failed to produce JSON, create a fallback
-if ! echo "$JSON_OUTPUT" | grep -q '"commit"'; then
+if ! printf '%s\n' "$JSON_OUTPUT" | grep -q '"commit"'; then
     TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     COMMIT_SHA=$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo "unknown")
     JSON_OUTPUT="{\"commit\":\"$COMMIT_SHA\",\"timestamp\":\"$TIMESTAMP\",\"ruff_check\":0,\"ruff_format\":0,\"mypy\":0,\"pytest_passed\":0,\"pytest_failed\":0,\"total_violations\":-1}"
@@ -29,14 +29,14 @@ if [[ ! -f "$VIOLATIONS_FILE" ]]; then
     echo '{"history":[],"trends":{"total_commits":0,"clean_commits":0,"violation_rate":"0%"}}' > "$VIOLATIONS_FILE"
 fi
 
-# Append the new entry to history using python3 (portable JSON manipulation)
-python3 -c "
+# Append the new entry to history — pass JSON via stdin to avoid quoting issues
+printf '%s\n' "$JSON_OUTPUT" | python3 -c "
 import json, sys
 
 with open('$VIOLATIONS_FILE') as f:
     data = json.load(f)
 
-entry = json.loads('''$JSON_OUTPUT''')
+entry = json.load(sys.stdin)
 
 # Avoid duplicates — skip if same commit already exists
 if not any(h['commit'] == entry['commit'] for h in data['history']):
@@ -61,8 +61,8 @@ with open('$VIOLATIONS_FILE', 'w') as f:
 "
 
 # Print summary
-VIOLATIONS=$(echo "$JSON_OUTPUT" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['total_violations'])")
-COMMIT=$(echo "$JSON_OUTPUT" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['commit'])")
+VIOLATIONS=$(printf '%s\n' "$JSON_OUTPUT" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['total_violations'])")
+COMMIT=$(printf '%s\n' "$JSON_OUTPUT" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['commit'])")
 
 if [[ "$VIOLATIONS" == "0" ]]; then
     if ! $QUIET; then

@@ -17,30 +17,29 @@ MYPY=0
 PYTEST_PASSED=0
 PYTEST_FAILED=0
 
-# --- ruff check ---
-ruff_output=$(ruff check src/ tests/ examples/ 2>&1) || true
-RUFF_CHECK=$(echo "$ruff_output" | sed -n 's/.*Found \([0-9]*\) error.*/\1/p' | head -1)
-RUFF_CHECK=${RUFF_CHECK:-0}
+# --- ruff check (JSON output for reliable parsing) ---
+ruff_json=$(ruff check --output-format json --exit-zero src/ tests/ examples/ 2>&1) || true
+RUFF_CHECK=$(printf '%s\n' "$ruff_json" | jq 'length')
 
-# --- ruff format ---
+# --- ruff format (count files needing reformatting) ---
 format_output=$(ruff format --check src/ tests/ examples/ 2>&1) || true
-RUFF_FORMAT=$(echo "$format_output" | sed -n 's/.*Would reformat \([0-9]*\) file.*/\1/p' | head -1)
+RUFF_FORMAT=$(printf '%s\n' "$format_output" | sed -n 's/Would reformat \([0-9][0-9]*\).*/\1/p' | head -1)
 RUFF_FORMAT=${RUFF_FORMAT:-0}
 
 # --- mypy ---
 mypy_output=$(mypy src/ tests/ examples/ --strict 2>&1) || true
-if echo "$mypy_output" | grep -q "Success: no issues"; then
+if printf '%s\n' "$mypy_output" | grep -q "Success: no issues"; then
     MYPY=0
 else
-    MYPY=$(echo "$mypy_output" | grep -c "error:" || true)
+    MYPY=$(printf '%s\n' "$mypy_output" | grep -c "error:" || true)
     MYPY=${MYPY:-0}
 fi
 
 # --- pytest ---
 pytest_output=$(pytest tests/ --tb=no -q 2>&1) || true
-PYTEST_PASSED=$(echo "$pytest_output" | sed -n 's/\([0-9]*\) passed.*/\1/p' | head -1)
+PYTEST_PASSED=$(printf '%s\n' "$pytest_output" | sed -n 's/\([0-9]*\) passed.*/\1/p' | head -1)
 PYTEST_PASSED=${PYTEST_PASSED:-0}
-PYTEST_FAILED=$(echo "$pytest_output" | sed -n 's/\([0-9]*\) failed.*/\1/p' | head -1)
+PYTEST_FAILED=$(printf '%s\n' "$pytest_output" | sed -n 's/\([0-9]*\) failed.*/\1/p' | head -1)
 PYTEST_FAILED=${PYTEST_FAILED:-0}
 
 # --- Total violations ---
