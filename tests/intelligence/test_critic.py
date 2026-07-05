@@ -35,7 +35,7 @@ class TestCriticFailureClustering:
         traces = [
             [
                 {"node_id": "n1", "kind": "act", "outputs": {"result": "ok"}},
-                {"node_id": "n2", "kind": "harness_call", "verdict": "pass"},
+                {"node_id": "n2", "kind": "harness_call", "verdict": "ok"},
             ],
         ]
         critic = Critic()
@@ -133,3 +133,20 @@ class TestCriticOutputModel:
         b = CriticOutput()
         a.failure_clusters.append({"root_cause": "test", "count": 1})
         assert b.failure_clusters == []
+
+
+class TestCriticRealHarnessErrors:
+    """Critic handles real run_harness error strings without crashing."""
+
+    def test_real_exception_string_through_critic(self) -> None:
+        from autoharness.sandbox.harness_runner import run_harness
+
+        result = run_harness(code="raise NameError('oops')")
+        assert result["verdict"] == "error"
+        assert isinstance(result["raised"], str)
+
+        trace = [{"node_id": "n1", "kind": "harness_call", **result}]
+        critic = Critic()
+        output = critic.analyze([trace])
+        assert len(output.failure_clusters) >= 1
+        assert output.failure_clusters[0]["root_cause"] == "NameError"

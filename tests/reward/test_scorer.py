@@ -28,14 +28,14 @@ class TestRewardSuccessDetection:
 
     def test_success_detected(self) -> None:
         trace = [
-            {"node_id": "n1", "kind": "harness_call", "verdict": "pass"},
+            {"node_id": "n1", "kind": "harness_call", "verdict": "ok"},
         ]
         r = score_trace(trace)
         assert r.task_success == 1.0
 
     def test_failure_detected(self) -> None:
         trace = [
-            {"node_id": "n1", "kind": "harness_call", "verdict": "fail"},
+            {"node_id": "n1", "kind": "harness_call", "verdict": "error"},
         ]
         r = score_trace(trace)
         assert r.task_success == 0.0
@@ -79,17 +79,17 @@ class TestRewardSafetyScore:
 
     def test_raised_exception_reduces_safety(self) -> None:
         trace = [
-            {"node_id": "n1", "kind": "harness_call", "verdict": "pass", "raised": "ValueError"},
+            {"node_id": "n1", "kind": "harness_call", "verdict": "ok", "raised": "ValueError"},
         ]
         r = score_trace(trace)
         assert r.safety < 1.0
 
     def test_multiple_exceptions_saturate_safety_at_zero(self) -> None:
         trace = [
-            {"node_id": "n1", "kind": "harness_call", "verdict": "pass", "raised": "ValueError"},
-            {"node_id": "n2", "kind": "harness_call", "verdict": "pass", "raised": "RuntimeError"},
-            {"node_id": "n3", "kind": "harness_call", "verdict": "pass", "raised": "TypeError"},
-            {"node_id": "n4", "kind": "harness_call", "verdict": "pass", "raised": "IndexError"},
+            {"node_id": "n1", "kind": "harness_call", "verdict": "ok", "raised": "ValueError"},
+            {"node_id": "n2", "kind": "harness_call", "verdict": "ok", "raised": "RuntimeError"},
+            {"node_id": "n3", "kind": "harness_call", "verdict": "ok", "raised": "TypeError"},
+            {"node_id": "n4", "kind": "harness_call", "verdict": "ok", "raised": "IndexError"},
         ]
         r = score_trace(trace)
         assert r.safety == 0.0
