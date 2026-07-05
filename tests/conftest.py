@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from autoharness.ir.upir import UPIR, Edge
 
 
@@ -19,12 +18,12 @@ class FakeLLM:
         return self._response
 
 
-@pytest.fixture
+@pytest.fixture  # type: ignore[misc]
 def fake_llm() -> FakeLLM:
     return FakeLLM()
 
 
-@pytest.fixture
+@pytest.fixture  # type: ignore[misc]
 def sample_upir() -> UPIR:
     return UPIR(
         entry="n1",
