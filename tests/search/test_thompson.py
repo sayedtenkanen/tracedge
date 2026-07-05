@@ -123,7 +123,7 @@ class TestSearchConfigDefaults:
         assert cfg.prior_beta == 1.0
         assert cfg.convergence_threshold == 0.8
         assert cfg.max_search_iterations == 20
-        assert cfg.max_failures_per_round == 5
+        assert cfg.max_total_failures == 5
         assert cfg.num_parallel_rollouts == 8
 
 
@@ -155,13 +155,16 @@ class TestThompsonTreeSearchConverges:
         search.add_branch(bad)
 
         result = search.run(mock_rollout, rng_seed=42)
+        assert result.status == "converged"
+        assert result.total_failures == 0
         assert result.best_branch is not None
+        assert result.best_branch.update_count >= 3
         assert result.best_branch.harness.code == "good_harness"
-        assert result.iterations > 0
+        assert call_count["good"] > call_count["bad"]
 
 
 class TestThompsonTreeSearchFailureBudget:
-    """Search respects max_failures_per_round."""
+    """Search respects max_total_failures."""
 
     def test_stops_on_failure_budget(self) -> None:
         h = _make_harness("failing_harness")
@@ -172,7 +175,7 @@ class TestThompsonTreeSearchFailureBudget:
         search = ThompsonTreeSearch(
             config=SearchConfig(
                 max_search_iterations=100,
-                max_failures_per_round=3,
+                max_total_failures=3,
                 convergence_threshold=0.99,
             ),
             env_kind="tool",
@@ -180,8 +183,8 @@ class TestThompsonTreeSearchFailureBudget:
         search.add_branch(h)
 
         result = search.run(failing_rollout, rng_seed=42)
-        assert result.total_failures <= 3
-        assert result.status in ("converged", "max_failures")
+        assert result.status == "max_failures"
+        assert result.total_failures == 3
 
 
 class TestThompsonTreeSearchMaxIterations:
@@ -217,4 +220,6 @@ class TestThompsonTreeSearchEmpty:
         search = ThompsonTreeSearch(env_kind="tool")
         result = search.run(noop_rollout, rng_seed=42)
         assert result.best_branch is None
+        assert result.iterations == 0
+        assert result.total_failures == 0
         assert result.status == "no_branches"
