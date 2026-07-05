@@ -134,7 +134,15 @@ class VM:
         harness_id = getattr(node, "harness_id", "")
 
         # Look up harness code from the UPIR harness table
-        harness_code = self.upir.harness_table.get(harness_id, "")
+        harness_entry = self.upir.harness_table.get(harness_id, "")
+        if harness_entry is None or harness_entry == "":
+            harness_code = ""
+        elif isinstance(harness_entry, dict):
+            if "code" not in harness_entry:
+                raise ValueError(f"Harness '{harness_id}' in harness_table is missing 'code' key")
+            harness_code = harness_entry["code"]
+        else:
+            harness_code = str(harness_entry)
 
         # Execute via sandboxed runner
         from autoharness.sandbox.harness_runner import run_harness
