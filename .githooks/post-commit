@@ -6,6 +6,5 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 VIOLATIONS_SCRIPT="$REPO_ROOT/scripts/update-violations.sh"
 
 if [[ -f "$VIOLATIONS_SCRIPT" ]]; then
-    # Run in background so commit isn't slowed down
-    bash "$VIOLATIONS_SCRIPT" --quiet &
+    bash "$VIOLATIONS_SCRIPT" --quiet
 fi
