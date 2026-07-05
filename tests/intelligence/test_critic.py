@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from autoharness.intelligence.critic import Critic, CriticOutput
 
 
@@ -32,7 +34,7 @@ class TestCriticFailureClustering:
         assert output.inefficiency_patterns == []
 
     def test_no_failures_clean_trace(self) -> None:
-        traces = [
+        traces: list[list[dict[str, Any]]] = [
             [
                 {"node_id": "n1", "kind": "act", "outputs": {"result": "ok"}},
                 {"node_id": "n2", "kind": "harness_call", "verdict": "ok"},

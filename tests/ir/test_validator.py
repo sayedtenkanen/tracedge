@@ -1,6 +1,6 @@
 """Validate UPIR construction via Pydantic model validation."""
 
-from autoharness.ir.upir import UPIR, Edge
+from autoharness.ir.upir import UPIR, Edge, UPIRNode
 
 
 class TestEdgeConsistency:
@@ -71,7 +71,9 @@ class TestEdgeConsistency:
             harness_table={},
             skill_table={},
         )
-        assert upir.nodes["n2"].kind == "think"
+        node = upir.nodes["n2"]
+        assert isinstance(node, UPIRNode)
+        assert node.kind == "think"
 
     def test_empty_edges_valid(self) -> None:
         upir = UPIR(
