@@ -1,8 +1,8 @@
-"""Code task demo — ToolEnvironment with UPIR VM."""
-
+"""Code task demo — ToolEnvironment with UPIR VM and Reward scoring."""
 
 from autoharness.environment.tool_env import ToolEnvironment
 from autoharness.ir.upir import UPIR, Edge
+from autoharness.reward.scorer import score_trace, value
 from autoharness.runtime.vm import VM
 
 
@@ -40,12 +40,15 @@ def main() -> None:
                 "kind": "act",
                 "node_id": "execute",
                 "tool": "write_file",
-                "args": {"path": "/tmp/autoharness_demo/output.txt", "content": "Hello from AutoHarness!"},
+                "args": {
+                    "path": "/tmp/autoharness_demo/output.txt",
+                    "content": "Hello from AutoHarness!",
+                },
             },
         },
         edges=[
-            Edge(from_="observe", to="decide", kind="sequential"),
-            Edge(from_="decide", to="execute", kind="sequential"),
+            Edge(from_="observe", to="decide", kind="sequential"),  # type: ignore[call-arg]
+            Edge(from_="decide", to="execute", kind="sequential"),  # type: ignore[call-arg]
         ],
     )
 
@@ -58,8 +61,14 @@ def main() -> None:
     for event in trace:
         print(f"  {event.get('kind', '?')}: {event}")
 
+    # Score the trace with the Reward Engine
+    r = score_trace(trace, env_kind="tool")
+    v = value(r, env_kind="tool")
+
     print(f"\nTrace length: {len(trace)} steps")
     print(f"LLM calls: {llm.call_count}")
+    print(f"Reward vector: {r.model_dump()}")
+    print(f"Scalar value:  {v:.3f}")
 
 
 if __name__ == "__main__":

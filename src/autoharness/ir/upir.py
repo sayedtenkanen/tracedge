@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 NodeID = str
 HarnessID = str
@@ -26,13 +26,22 @@ class UPIRNode(BaseModel):
 
 class UPIR(BaseModel):
     entry: NodeID
-    nodes: dict[NodeID, UPIRNode]
+    nodes: dict[NodeID, UPIRNode | dict[str, Any]]
     edges: list[Edge] = []
     harness_table: dict[str, Any] = {}
     skill_table: dict[str, Any] = {}
     ir_schema: str = Field(default="typed-executable-graph", alias="schema")
 
     model_config = {"populate_by_name": True}
+
+    @field_validator("nodes", mode="before")
+    @classmethod
+    def coerce_nodes(cls, v: dict[str, Any]) -> dict[str, UPIRNode]:
+        """Allow dict values to be coerced to UPIRNode."""
+        result: dict[str, UPIRNode] = {}
+        for k, val in v.items():
+            result[k] = val if isinstance(val, UPIRNode) else UPIRNode.model_validate(val)
+        return result
 
     @property
     def schema_name(self) -> str:

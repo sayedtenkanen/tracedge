@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from autoharness.ir.upir import UPIR, UPIRNode
 
+from autoharness.ir.upir import UPIRNode as _UPIRNode
 from autoharness.runtime.seed import SeedStream
 from autoharness.runtime.state import State
 from autoharness.runtime.step import StepResult
@@ -45,7 +46,9 @@ class VM:
 
         return trace
 
-    def _step_node(self, node: UPIRNode) -> StepResult:
+    def _step_node(self, node: UPIRNode | dict[str, Any]) -> StepResult:
+        if isinstance(node, dict):
+            node = _UPIRNode.model_validate(node)
         kind = node.kind
 
         if kind == "observe":

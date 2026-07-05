@@ -17,7 +17,7 @@ class FakeLLM:
 class TestTraceEventEmitted:
     """Every node execution produces a trace_event."""
 
-    def test_trace_event_emitted_per_node(self):
+    def test_trace_event_emitted_per_node(self) -> None:
         from autoharness.trace.trace_ir import TraceEvent
 
         upir = UPIR(
@@ -26,7 +26,7 @@ class TestTraceEventEmitted:
                 "n1": {"kind": "observe", "node_id": "n1", "query": "test"},
                 "n2": {"kind": "act", "node_id": "n2", "tool": "read_file"},
             },
-            edges=[Edge(from_="n1", to="n2", kind="sequential")],
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],  # type: ignore[call-arg]
         )
         vm = VM(upir=upir, llm=FakeLLM())
         trace = vm.run()
@@ -39,7 +39,7 @@ class TestTraceEventEmitted:
 class TestTraceEventFields:
     """trace_event has node_id, inputs, outputs, cost."""
 
-    def test_trace_event_fields(self):
+    def test_trace_event_fields(self) -> None:
         from autoharness.trace.trace_ir import TraceEvent
 
         upir = UPIR(
@@ -57,7 +57,7 @@ class TestTraceEventFields:
 class TestTraceLegalFlag:
     """legal field: True/False for GameEnvironment, None for ToolEnvironment."""
 
-    def test_trace_legal_flag_none_tool_env(self):
+    def test_trace_legal_flag_none_tool_env(self) -> None:
         from autoharness.environment.tool_env import ToolEnvironment
         from autoharness.trace.trace_ir import TraceEvent
 
@@ -71,7 +71,7 @@ class TestTraceLegalFlag:
         te = TraceEvent.model_validate(trace[0])
         assert te.legal is None
 
-    def test_trace_legal_flag_game_env(self):
+    def test_trace_legal_flag_game_env(self) -> None:
         from autoharness.environment.game_env import GameEnvironment
         from autoharness.trace.trace_ir import TraceEvent
 
@@ -89,7 +89,7 @@ class TestTraceLegalFlag:
 class TestHarnessCallTrace:
     """HarnessCall nodes emit verdict, raised, cost in trace_event."""
 
-    def test_trace_harness_result_fields(self):
+    def test_trace_harness_result_fields(self) -> None:
         from autoharness.trace.trace_ir import TraceEvent
 
         upir = UPIR(
@@ -115,7 +115,7 @@ class TestHarnessCallTrace:
         assert te.kind == "harness_call"
         assert "verdict" in trace[0]
 
-    def test_trace_harness_raised_visible(self):
+    def test_trace_harness_raised_visible(self) -> None:
         upir = UPIR(
             entry="n1",
             nodes={
@@ -141,7 +141,7 @@ class TestHarnessCallTrace:
 class TestDeterministicReplay:
     """Same execution produces identical trace."""
 
-    def test_trace_deterministic_replay(self):
+    def test_trace_deterministic_replay(self) -> None:
         upir = UPIR(
             entry="n1",
             nodes={"n1": {"kind": "think", "node_id": "n1", "prompt": "test"}},
@@ -154,7 +154,7 @@ class TestDeterministicReplay:
 class TestCostAccumulated:
     """trace_event.cost values are consistent."""
 
-    def test_trace_cost_accumulated(self):
+    def test_trace_cost_accumulated(self) -> None:
         from autoharness.trace.trace_ir import TraceEvent
 
         upir = UPIR(
@@ -163,7 +163,7 @@ class TestCostAccumulated:
                 "n1": {"kind": "observe", "node_id": "n1"},
                 "n2": {"kind": "act", "node_id": "n2"},
             },
-            edges=[Edge(from_="n1", to="n2", kind="sequential")],
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],  # type: ignore[call-arg]
         )
         vm = VM(upir=upir, llm=FakeLLM())
         trace = vm.run()
