@@ -58,7 +58,7 @@ class SearchConfig:
     convergence_threshold: float = 0.8
     min_convergence_iterations: int = 3
     max_search_iterations: int = 20
-    max_failures_per_round: int = 5
+    max_total_failures: int = 5
     num_parallel_rollouts: int = 8
 
 
@@ -135,7 +135,7 @@ class ThompsonTreeSearch:
 
             if failed:
                 total_failures += 1
-                if total_failures >= self.config.max_failures_per_round:
+                if total_failures >= self.config.max_total_failures:
                     return SearchResult(
                         best_branch=self._best_branch(),
                         iterations=iteration,
