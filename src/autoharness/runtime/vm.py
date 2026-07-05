@@ -139,9 +139,7 @@ class VM:
             harness_code = ""
         elif isinstance(harness_entry, dict):
             if "code" not in harness_entry:
-                raise ValueError(
-                    f"Harness '{harness_id}' in harness_table is missing 'code' key"
-                )
+                raise ValueError(f"Harness '{harness_id}' in harness_table is missing 'code' key")
             harness_code = harness_entry["code"]
         else:
             harness_code = str(harness_entry)
