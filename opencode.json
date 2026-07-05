@@ -5,7 +5,13 @@
   "agent": {
     "ci-monitor": {
       "mode": "subagent",
+      "model": "ollama/gemma4:12b-mlx",
       "description": "Monitors GitHub Actions CI runs, reports failures, and suggests fixes. Use when asked about CI status, failing builds, or CI run details."
+    },
+    "repo-status": {
+      "mode": "subagent",
+      "model": "ollama/gemma4:12b-mlx",
+      "description": "Checks upstream GitHub repo status: branches, PRs, CI runs, and sync state. Use when asked about repo status, what's pushed, or what needs merging."
     }
   }
 }
