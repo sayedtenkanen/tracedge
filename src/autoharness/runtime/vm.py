@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from autoharness.ir.upir import UPIR, UPIRNode
 
 from autoharness.ir.upir import UPIRNode as _UPIRNode
+
 from autoharness.runtime.seed import SeedStream
 from autoharness.runtime.state import State
 from autoharness.runtime.step import StepResult

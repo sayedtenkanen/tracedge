@@ -44,6 +44,21 @@ class TestValueClamped:
         v = value(r, env_kind="game")
         assert 0.0 <= v <= 1.0
 
+    def test_clamped_out_of_range_low_components(self) -> None:
+        r = Reward(task_success=0.5, efficiency=-0.5, safety=-1.0)
+        v = value(r, env_kind="tool")
+        assert 0.0 <= v <= 1.0
+
+    def test_clamped_out_of_range_high_components(self) -> None:
+        r = Reward(task_success=2.0, efficiency=0.5, safety=1.5, legality=0.0)
+        v = value(r, env_kind="game")
+        assert 0.0 <= v <= 1.0
+
+    def test_clamped_mixed_out_of_range_components(self) -> None:
+        r = Reward(task_success=1.2, efficiency=-0.3, safety=0.8, legality=1.7)
+        v = value(r, env_kind="tool")
+        assert 0.0 <= v <= 1.0
+
 
 class TestValueDeterministic:
     """Same reward + same weights → same value."""
