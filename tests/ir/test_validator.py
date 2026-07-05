@@ -1,5 +1,6 @@
+"""Validate UPIR construction via Pydantic model validation."""
+
 from autoharness.ir.upir import UPIR, Edge
-from autoharness.ir.validator import validate_upir
 
 
 class TestEdgeConsistency:
@@ -13,12 +14,13 @@ class TestEdgeConsistency:
                 "n2": {"kind": "act", "node_id": "n2"},
             },
             edges=[
-                Edge(from_="n1", to="n2", kind="sequential"),  # type: ignore[call-arg]
+                Edge(from_="n1", to="n2", kind="sequential"),
             ],
             harness_table={},
             skill_table={},
         )
-        assert validate_upir(upir) is True
+        assert upir.entry == "n1"
+        assert len(upir.edges) == 1
 
     def test_valid_branch_edges(self) -> None:
         upir = UPIR(
@@ -29,13 +31,13 @@ class TestEdgeConsistency:
                 "n3": {"kind": "act", "node_id": "n3"},
             },
             edges=[
-                Edge(from_="n1", to="n2", kind="branch"),  # type: ignore[call-arg]
-                Edge(from_="n1", to="n3", kind="branch"),  # type: ignore[call-arg]
+                Edge(from_="n1", to="n2", kind="branch"),
+                Edge(from_="n1", to="n3", kind="branch"),
             ],
             harness_table={},
             skill_table={},
         )
-        assert validate_upir(upir) is True
+        assert len(upir.edges) == 2
 
     def test_valid_graph_with_all_edge_kinds(self) -> None:
         upir = UPIR(
@@ -46,13 +48,13 @@ class TestEdgeConsistency:
                 "n3": {"kind": "act", "node_id": "n3"},
             },
             edges=[
-                Edge(from_="n1", to="n2", kind="branch"),  # type: ignore[call-arg]
-                Edge(from_="n1", to="n3", kind="fallthrough"),  # type: ignore[call-arg]
+                Edge(from_="n1", to="n2", kind="branch"),
+                Edge(from_="n1", to="n3", kind="fallthrough"),
             ],
             harness_table={},
             skill_table={},
         )
-        assert validate_upir(upir) is True
+        assert upir.schema_name == "typed-executable-graph"
 
     def test_valid_linear_chain(self) -> None:
         upir = UPIR(
@@ -63,13 +65,13 @@ class TestEdgeConsistency:
                 "n3": {"kind": "act", "node_id": "n3"},
             },
             edges=[
-                Edge(from_="n1", to="n2", kind="sequential"),  # type: ignore[call-arg]
-                Edge(from_="n2", to="n3", kind="sequential"),  # type: ignore[call-arg]
+                Edge(from_="n1", to="n2", kind="sequential"),
+                Edge(from_="n2", to="n3", kind="sequential"),
             ],
             harness_table={},
             skill_table={},
         )
-        assert validate_upir(upir) is True
+        assert upir.nodes["n2"].kind == "think"
 
     def test_empty_edges_valid(self) -> None:
         upir = UPIR(
@@ -79,4 +81,4 @@ class TestEdgeConsistency:
             harness_table={},
             skill_table={},
         )
-        assert validate_upir(upir) is True
+        assert upir.edges == []
