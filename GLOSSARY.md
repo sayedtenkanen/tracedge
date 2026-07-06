@@ -9,7 +9,9 @@
 | **Edge** | A directed connection between two UPIR nodes with a `kind` (e.g. `sequential`). | `src/autoharness/ir/upir.py:12` |
 | **Harness IR** | Typed executable code blocks with effects, guard policies, and a `kind` (policy, reward, utility). Compiled into the UPIR `harness_table`. | `src/autoharness/ir/harness.py` |
 | **TraceEvent** | A structured observation emitted by the VM for each node execution. Contains `node_id`, `kind`, `inputs`, `outputs`, `cost`, `legal` flag. | `src/autoharness/trace/trace_ir.py` |
-| **Skill** | A reusable subgraph extracted from repeated trace patterns. Stored in the UPIR `skill_table` as a nested UPIR. | `PLAN.md` (Slice 7-9) |
+| **Skill** | A reusable subgraph extracted from repeated trace patterns. Stored in the UPIR `skill_table` as a nested UPIR. | `src/autoharness/skills/extractor.py` |
+| **SkillExtractor** | Detects repeated node-id subsequences in execution traces and extracts them as nested UPIR skills. | `src/autoharness/skills/extractor.py:20` |
+| **Pattern** | A detected repeated pattern in a trace — a sequence of node IDs with an occurrence count. | `src/autoharness/skills/extractor.py:12` |
 | **Phi** | A merge node that combines values from multiple source nodes into a single state. | `src/autoharness/ir/nodes.py` |
 
 ## Runtime

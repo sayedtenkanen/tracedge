@@ -97,13 +97,14 @@ src/autoharness/
 ## Current status
 
 - [x] Plan complete (PLAN.md)
-- [x] Slice 1: UPIR VM + Environment Protocol (63 tests green)
-- [x] Slice 2: Sandbox + Safety (13 tests green)
-- [ ] Slice 3: Trace IR
-- [ ] Slice 4: Reward Engine
-- [ ] Slice 5: Thompson Tree Search
-- [ ] Slice 6: Refiner + Critic Loop
-- [ ] Slice 7-10: Skills + Memory
+- [x] Slice 1: UPIR VM + Environment Protocol
+- [x] Slice 2: Sandbox + Safety
+- [x] Slice 3: Trace IR
+- [x] Slice 4: Reward Engine
+- [x] Slice 5: Thompson Tree Search
+- [x] Slice 6: Refiner + Critic Loop
+- [x] Slice 7: Skill Extraction
+- [ ] Slice 8-10: Skill Execution, Pruning, Memory
 - [ ] Slice 11-16: Compiler layer
 
 ## CI/CD

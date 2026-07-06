@@ -1,5 +1,7 @@
 # AutoHarness v4 — Complete Blueprint
 
+> **Note:** This is the original v4 design reference. For current implementation decisions, see [PLAN.md](PLAN.md).
+
 ## 1. Overview
 
 **What it is:** A probabilistic skill compiler that searches over structured stochastic policy graphs, executes them in a sandbox, and compiles reusable behavioral modules from execution traces.

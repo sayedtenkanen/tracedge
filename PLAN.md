@@ -420,6 +420,8 @@ CriticOutput := {
 ### Slice 7 — Skill Extraction
 Detect repeated subgraphs in traces, compress into a `skill_table` entry (a nested UPIR). *(Paper explicitly lists a reusable-harness library as unexplored future work — this slice is one concrete way to build toward that, not something the paper demonstrates.)*
 
+**Done when:** `SkillExtractor` detects repeated node-id subsequences in traces and extracts them as nested UPIR skills stored in `skill_table`. Configurable `min_occurrences` threshold. 4 tests passing.
+
 ### Slice 8 — Skill Execution (composition layer)
 `SkillCall` node, nested VM execution, skill registry lookup — structurally the same `ReferenceCall` pattern as `HarnessCall` (see UPIR).
 
@@ -885,14 +887,16 @@ tests/
 ```toml
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-asyncio_mode = "auto"
+addopts = "-ra --strict-config --strict-markers"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 strict = true
+plugins = ["pydantic.mypy"]
 
 [tool.ruff]
 line-length = 100
+target-version = "py312"
 ```
 
 ### Test naming convention

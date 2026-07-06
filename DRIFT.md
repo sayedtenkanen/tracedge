@@ -19,7 +19,7 @@
 
 ### Feature Completeness (Phase 1 — 37 checks)
 - All 8 Phase 1 modules exist (ir, runtime, environment, sandbox, trace, reward, search, intelligence)
-- Phase 2/3 modules do NOT exist (skills, memory, compiler)
+- Phase 2/3 modules: `skills/` exists (Slice 7 done); `memory/` and `compiler/` do NOT exist
 - UPIR has entry, nodes, edges, harness_table, skill_table fields
 - Edge has from_, to, kind with alias support
 - 7 node types present: Observe, Act, Think, Branch, SkillCall, HarnessCall, Phi

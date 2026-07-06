@@ -8,13 +8,15 @@ Based on [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Googl
 
 | Slice | Description | Status |
 |-------|-------------|--------|
-| 1 | UPIR VM + Environment Protocol | 68 tests green |
-| 2 | Sandbox + Safety | 13 tests green |
-| 3 | Trace IR | planned |
-| 4 | Reward Engine | planned |
-| 5 | Thompson Tree Search | planned |
-| 6 | Refiner + Critic Loop | planned |
-| 7-16 | Skills, Memory, Compiler | planned |
+| 1 | UPIR VM + Environment Protocol | done |
+| 2 | Sandbox + Safety | done |
+| 3 | Trace IR | done |
+| 4 | Reward Engine | done |
+| 5 | Thompson Tree Search | done |
+| 6 | Refiner + Critic Loop | done |
+| 7 | Skill Extraction | done |
+| 8-10 | Skill Execution, Pruning, Memory | planned |
+| 11-16 | Compiler layer | planned |
 
 ## Install
 
@@ -83,11 +85,11 @@ src/autoharness/
 ├── runtime/         # VM, state, seed, StepResult
 ├── environment/     # Protocol, ToolEnvironment, GameEnvironment
 ├── sandbox/         # Workspace, guardrails, harness runner
-├── trace/           # (planned) Trace IR
-├── reward/          # (planned) Reward engine
-├── search/          # (planned) Thompson tree search
-├── intelligence/    # (planned) LLM client, critic, refiner
-├── skills/          # (planned) Skill system
+├── trace/           # Trace IR
+├── reward/          # Reward engine
+├── search/          # Thompson tree search
+├── intelligence/    # LLM client, critic, refiner
+├── skills/          # Skill extraction
 ├── memory/          # (planned) Persistence
 └── compiler/        # (planned) Compiler passes
 ```
