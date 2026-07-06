@@ -118,4 +118,4 @@ bash scripts/ci-status.sh
 
 ## License
 
-Research use only.
+MIT — see [LICENSE](LICENSE).
