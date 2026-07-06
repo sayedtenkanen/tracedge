@@ -13,12 +13,14 @@ SRC = pathlib.Path("src/autoharness")
 
 
 def _import_graph() -> dict[str, set[str]]:
-    """Build a module-level import graph from source files."""
+    """Build a module-level import graph from source files (including __init__.py)."""
     graph: dict[str, set[str]] = {}
     for py_file in SRC.rglob("*.py"):
         if py_file.name == "__init__.py":
-            continue
-        module = str(py_file.relative_to(SRC.parent)).replace("/", ".").removesuffix(".py")
+            # Map __init__.py to its parent package name
+            module = str(py_file.parent.relative_to(SRC.parent)).replace("/", ".")
+        else:
+            module = str(py_file.relative_to(SRC.parent)).replace("/", ".").removesuffix(".py")
         tree = ast.parse(py_file.read_text())
         imports: set[str] = set()
         for node in ast.walk(tree):
