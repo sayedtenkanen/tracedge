@@ -179,46 +179,22 @@ class VM:
     def _step_skill_call(self, node: UPIRNode) -> StepResult:
         node_id = node.node_id
         skill_id = getattr(node, "skill_id", "")
+        args = getattr(node, "args", {})
 
-        # Look up skill (nested UPIR) from skill_table
-        nested_upir = self.upir.skill_table.get(skill_id)
-        if nested_upir is None:
-            return StepResult(
-                next=self._next_node(node_id),
-                trace_event={
-                    "node_id": node_id,
-                    "kind": "skill_call",
-                    "skill_id": skill_id,
-                    "error": f"skill '{skill_id}' not found in skill_table",
-                },
-            )
-
-        # Execute nested UPIR with its own VM, passing current state
-        nested_vm = VM(
-            upir=nested_upir,
-            llm=self.llm,
-            seed=self.seed_stream.next(),
-            max_steps=self.max_steps,
-            environment=self.environment,
-        )
-        nested_trace = nested_vm.run()
-
-        # Merge nested state into parent (namespaced under skill_call node)
-        for nested_id, values in nested_vm.state.flatten().items():
-            self.state.set(node_id, f"nested.{nested_id}", values)
+        # Skill calls delegate to the LLM for now
+        response = self.llm.chat(f"Execute skill: {skill_id} with {args}")
 
         self.state.set(node_id, "skill_id", skill_id)
-        self.state.set(node_id, "nested_steps", len(nested_trace))
+        self.state.set(node_id, "response", response)
 
         return StepResult(
             next=self._next_node(node_id),
-            state_delta={node_id: {"skill_id": skill_id, "nested_steps": len(nested_trace)}},
+            state_delta={node_id: {"skill_id": skill_id, "response": response}},
             trace_event={
                 "node_id": node_id,
                 "kind": "skill_call",
                 "skill_id": skill_id,
-                "nested_trace": nested_trace,
-                "nested_steps": len(nested_trace),
+                "response": response,
             },
         )
 
