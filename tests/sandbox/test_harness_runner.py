@@ -43,3 +43,23 @@ raise ValueError("test error")
         result = run_harness(code, max_runtime_ms=1000)
         assert result["raised"] is not None
         assert "ValueError" in str(result["raised"])
+
+
+class TestReflectionBuiltinsRemoved:
+    """Regression: getattr/type/super/hasattr/property removed to block sandbox escape."""
+
+    def test_reflection_builtins_removed_getattr(self) -> None:
+        from autoharness.sandbox.harness_runner import run_harness
+
+        code = "x = getattr((), '__class__')"
+        result = run_harness(code, max_runtime_ms=1000)
+        assert result["verdict"] == "error"
+        assert "NameError" in str(result["raised"])
+
+    def test_reflection_builtins_removed_type(self) -> None:
+        from autoharness.sandbox.harness_runner import run_harness
+
+        code = "t = type(1)"
+        result = run_harness(code, max_runtime_ms=1000)
+        assert result["verdict"] == "error"
+        assert "NameError" in str(result["raised"])

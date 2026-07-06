@@ -8,6 +8,8 @@ from typing import Any
 from autoharness.sandbox.guardrails import check_harness_code
 
 # Restricted builtins: only safe, common names are available.
+# Reflection builtins (getattr, hasattr, type, super, property) are
+# excluded to prevent sandbox escape via __class__/__bases__/__subclasses__().
 _RESTRICTED_BUILTINS = {
     "abs": abs,
     "bool": bool,
@@ -18,8 +20,6 @@ _RESTRICTED_BUILTINS = {
     "float": float,
     "format": format,
     "frozenset": frozenset,
-    "getattr": getattr,
-    "hasattr": hasattr,
     "hash": hash,
     "hex": hex,
     "int": int,
@@ -36,7 +36,6 @@ _RESTRICTED_BUILTINS = {
     "ord": ord,
     "pow": pow,
     "print": print,
-    "property": property,
     "range": range,
     "repr": repr,
     "reversed": reversed,
@@ -46,9 +45,7 @@ _RESTRICTED_BUILTINS = {
     "sorted": sorted,
     "str": str,
     "sum": sum,
-    "super": super,
     "tuple": tuple,
-    "type": type,
     "Exception": Exception,
     "RuntimeError": RuntimeError,
     "ValueError": ValueError,
