@@ -38,6 +38,9 @@ Homepage = "https://github.com/sayedtenkanen/auto-harnessessing"
 Repository = "https://github.com/sayedtenkanen/auto-harnessessing"
 Issues = "https://github.com/sayedtenkanen/auto-harnessessing/issues"
 
+[project.scripts]
+autoharness = "autoharness.main:cli"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["autoharness*"]
