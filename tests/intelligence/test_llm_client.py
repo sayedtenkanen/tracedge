@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import contextlib
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from autoharness.intelligence.llm_client import LLMClient, OpenAIChatClient
 
@@ -23,8 +24,16 @@ class TestLLMClientProtocol:
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """LLMClient can be used with isinstance at runtime."""
-        chat_fn = getattr(LLMClient, "chat", None)
-        assert chat_fn is not None or hasattr(LLMClient, "__protocol_attrs__")
+
+        class ConformingLLM:
+            def chat(self, prompt: str) -> str:
+                return "response"
+
+        class NonConformingLLM:
+            pass
+
+        assert isinstance(ConformingLLM(), LLMClient)
+        assert not isinstance(NonConformingLLM(), LLMClient)
 
 
 class TestOpenAIChatClient:
@@ -36,7 +45,7 @@ class TestOpenAIChatClient:
             import os
 
             os.environ.pop("OPENAI_API_KEY", None)
-            with contextlib.suppress(ValueError, KeyError):
+            with pytest.raises(ValueError, match="OPENAI_API_KEY"):
                 OpenAIChatClient()
 
     def test_chat_returns_string(self) -> None:
@@ -111,3 +120,31 @@ class TestOpenAIChatClient:
             assert len(trace) == 1
             assert trace[0]["kind"] == "think"
             assert trace[0]["response"] == "4"
+
+    def test_chat_returns_empty_string_on_none_content(self) -> None:
+        """chat() returns '' when the API returns content=None."""
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock(message=MagicMock(content=None))]
+
+        with (
+            patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}),
+            patch("openai.OpenAI") as mock_openai,
+        ):
+            mock_openai.return_value.chat.completions.create.return_value = mock_response
+            client = OpenAIChatClient()
+            result = client.chat("test")
+            assert result == ""
+
+    def test_chat_raises_on_empty_choices(self) -> None:
+        """chat() raises IndexError when API returns an empty choices list."""
+        mock_response = MagicMock()
+        mock_response.choices = []
+
+        with (
+            patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}),
+            patch("openai.OpenAI") as mock_openai,
+        ):
+            mock_openai.return_value.chat.completions.create.return_value = mock_response
+            client = OpenAIChatClient()
+            with pytest.raises(IndexError):
+                client.chat("test")

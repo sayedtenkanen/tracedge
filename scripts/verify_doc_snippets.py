@@ -1,6 +1,7 @@
 """Throwaway script to verify all Python snippets in docs parse and run correctly."""
 
 import ast
+import multiprocessing
 import sys
 from pathlib import Path
 
@@ -23,6 +24,83 @@ SAFE_IMPORTS = {
     "autoharness.memory.store": ["MemoryStore"],
     "autoharness.ir.harness": ["Harness", "HarnessResult"],
 }
+
+
+class SnippetTimeoutError(Exception):
+    """Raised when a doc snippet exceeds its execution time budget."""
+
+
+SAFE_BUILTINS = {
+    "print": print,
+    "range": range,
+    "len": len,
+    "min": min,
+    "max": max,
+    "sum": sum,
+    "any": any,
+    "all": all,
+    "enumerate": enumerate,
+    "zip": zip,
+    "int": int,
+    "float": float,
+    "str": str,
+    "bool": bool,
+    "list": list,
+    "dict": dict,
+    "set": set,
+    "tuple": tuple,
+    "type": type,
+    "isinstance": isinstance,
+    "hasattr": hasattr,
+    "getattr": getattr,
+    "sorted": sorted,
+    "reversed": reversed,
+    "map": map,
+    "filter": filter,
+    "abs": abs,
+    "round": round,
+    "ValueError": ValueError,
+    "TypeError": TypeError,
+    "KeyError": KeyError,
+    "IndexError": IndexError,
+    "Exception": Exception,
+}
+
+
+def _exec_in_subprocess(block: str, queue: multiprocessing.Queue[object]) -> None:  # type: ignore[type-arg]
+    """Execute block in a subprocess; puts result or exception into queue."""
+    namespace: dict[str, object] = {"__builtins__": SAFE_BUILTINS}
+    try:
+        exec(block, namespace)  # nosec B102 - executed with restricted builtins
+        queue.put(None)
+    except Exception as e:
+        queue.put(e)
+
+
+def run_snippet_with_timeout(
+    block: str,
+    timeout_seconds: float = 5.0,
+) -> tuple[bool, str | None]:
+    """Execute block with restricted builtins and a timeout.
+
+    Returns (success, error_message).
+    """
+    queue: multiprocessing.Queue[object] = multiprocessing.Queue()
+    proc = multiprocessing.Process(target=_exec_in_subprocess, args=(block, queue))
+    proc.start()
+    proc.join(timeout=timeout_seconds)
+
+    if proc.is_alive():
+        proc.terminate()
+        proc.join(timeout=1.0)
+        return False, f"SnippetTimeoutError: exceeded {timeout_seconds}s timeout"
+
+    if not queue.empty():
+        exc = queue.get_nowait()
+        if exc is not None:
+            return False, f"{type(exc).__name__}: {exc}"
+
+    return True, None
 
 
 def extract_python_blocks(md_text: str) -> list[tuple[int, str]]:
@@ -99,11 +177,9 @@ def run_snippet(block: str, line_start: int, doc_name: str) -> list[str]:
     if any(m in block for m in skip_markers):
         return errors
 
-    namespace = {}
-    try:
-        exec(block, namespace)  # nosec B102
-    except Exception as e:
-        errors.append(f"  {doc_name}:{line_start}: RuntimeError: {type(e).__name__}: {e}")
+    success, error_msg = run_snippet_with_timeout(block, timeout_seconds=5.0)
+    if not success:
+        errors.append(f"  {doc_name}:{line_start}: {error_msg}")
     return errors
 
 

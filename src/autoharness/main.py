@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import tempfile
+from importlib.metadata import version as _pkg_version
 from pathlib import Path
 from typing import Any
 
@@ -92,8 +93,8 @@ def run_autoharness(
 
         extractor = SkillExtractor(min_occurrences=2)
         patterns = extractor.detect_patterns(trace_log)
-        if patterns and variant_list:
-            best_upir = variants[variant_list[0][0]]
+        if patterns and result.best_branch:
+            best_upir = variants[result.best_branch.harness.code]
             for pattern in patterns:
                 skill = extractor.extract_skill(pattern, best_upir)
                 if skill is not None:
@@ -159,7 +160,7 @@ def cli() -> None:
     """Minimal CLI entry point."""
     parser = argparse.ArgumentParser(description="AutoHarness — probabilistic program compiler")
     parser.add_argument("--demo", action="store_true", help="Run the tic-tac-toe demo")
-    parser.add_argument("--version", action="version", version="0.1.0")
+    parser.add_argument("--version", action="version", version=_pkg_version("autoharness"))
     args = parser.parse_args()
 
     if args.demo:
