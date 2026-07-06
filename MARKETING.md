@@ -4,7 +4,7 @@
 
 **AutoHarness** is an open-source probabilistic program compiler for AI agents. It automatically discovers, compiles, and reuses successful behavioral patterns from LLM execution traces — turning one-shot successes into reliable, reusable subprograms.
 
-**Based on:** [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026)
+**Based on:** Inspired by [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026)
 
 ## One-Liner
 
@@ -16,14 +16,14 @@ LLMs are powerful but inconsistent. AutoHarness solves this by watching LLM exec
 
 ## Key Differentiators
 
-| Feature | AutoHarness | Manual Prompt Engineering | Fine-tuning |
-|---------|------------|--------------------------|-------------|
-| **Automatic skill extraction** | Yes — from execution traces | No | No |
-| **Reusable subprograms** | Yes — compiled skills | No | Partial (weights) |
-| **Safety sandboxing** | AST-based, no network/filesystem | None | None |
-| **Zero human labeling** | Yes | No | Yes (training data) |
-| **Works with any LLM** | Yes (API-agnostic) | Yes | No (model-specific) |
-| **Thompson search** | Yes — Bayesian exploration | No | No |
+| Feature | AutoHarness | LangGraph | DSPy | AutoGen |
+|---------|------------|-----------|------|---------|
+| **Automatic skill extraction** | Yes — from execution traces | No | No | No |
+| **Reusable subprograms** | Yes — compiled skills | No | Partial (modules) | No |
+| **Safety sandboxing** | AST-based, no network/filesystem | None | None | None |
+| **Zero human labeling** | Yes | Yes | Partial (signatures) | Yes |
+| **Works with any LLM** | Yes — any chat interface; OpenAI adapter included | Yes | Yes | Yes |
+| **Thompson search** | Yes — Bayesian exploration | No | No | No |
 
 ## Target Audience
 
@@ -48,7 +48,7 @@ Every skill execution runs in a sandboxed environment with AST-based guardrails.
 Instead of brute-force search, AutoHarness uses Thompson sampling to explore the strategy space — allocating more trials to promising approaches while still exploring alternatives.
 
 ### 4. Model-Agnostic
-Works with OpenAI, Anthropic, Ollama, or any LLM with a chat interface. Swap models without changing your agent logic.
+Works with any LLM exposing a chat interface — OpenAI adapter included. Swap models without changing your agent logic.
 
 ## Technical Highlights
 
@@ -56,7 +56,7 @@ Works with OpenAI, Anthropic, Ollama, or any LLM with a chat interface. Swap mod
 - **Sandboxed execution:** Thread-based isolation with restricted builtins and AST-level static analysis
 - **Dual-mode reward:** Vector rewards for population search, scalar rewards for Thompson bandit updates
 - **Skill lifecycle:** Extract → Execute → Prune → Persist → Reuse
-- **297 tests** with full type coverage (mypy strict) and security scanning
+- **307 tests** with full type coverage (mypy strict) and security scanning
 
 ## Use Cases
 
@@ -101,7 +101,7 @@ An agent that reads files, processes data, and writes outputs. AutoHarness captu
 | 2 | Tutorial: Your first self-improving agent | Blog + YouTube |
 | 2 | Tic-Tac-Toe demo walkthrough | Twitter thread |
 | 3 | Deep dive: Thompson search for agents | Blog post |
-| 3 | Comparison: AutoHarness vs fine-tuning | Twitter thread |
+| 3 | Comparison: AutoHarness vs LangGraph/DSPy | Twitter thread |
 | 4 | "Building a coding agent with AutoHarness" | Tutorial series |
 
 ## Metrics to Track

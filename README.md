@@ -1,8 +1,8 @@
 # AutoHarness
 
-Probabilistic program compiler that searches over a unified intermediate representation (UPIR), executes it in sandboxed environments, and compiles successful behaviors into reusable executable subprograms.
+Probabilistic program compiler that searches over a unified intermediate representation (UPIR), executes it in sandboxed environments, and extracts successful behaviors into reusable executable subprograms.
 
-Based on [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026).
+Inspired by [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026).
 
 ## Status
 
@@ -75,7 +75,7 @@ UPIR (Unified Policy IR)
        └─ Trace → Reward → Thompson Search → Refiner/Critic
 ```
 
-**Core loop:** Execute → Trace → Score → Search → Refine → Compile
+**Core loop:** Execute → Trace → Score → Search → Refine → Compile *(compile stage planned, slices 11-16)*
 
 ## Project structure
 
