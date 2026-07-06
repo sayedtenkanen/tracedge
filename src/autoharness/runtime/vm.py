@@ -179,22 +179,56 @@ class VM:
     def _step_skill_call(self, node: UPIRNode) -> StepResult:
         node_id = node.node_id
         skill_id = getattr(node, "skill_id", "")
-        args = getattr(node, "args", {})
 
-        # Skill calls delegate to the LLM for now
-        response = self.llm.chat(f"Execute skill: {skill_id} with {args}")
+        # Look up skill (nested UPIR) from skill_table
+        nested_upir = self.upir.skill_table.get(skill_id)
+        if nested_upir is None:
+            return StepResult(
+                next=self._next_node(node_id),
+                trace_event={
+                    "node_id": node_id,
+                    "kind": "skill_call",
+                    "skill_id": skill_id,
+                    "error": f"skill '{skill_id}' not found in skill_table",
+                },
+            )
+
+        # Execute nested UPIR with its own VM, passing current state
+        nested_vm = VM(
+            upir=nested_upir,
+            llm=self.llm,
+            seed=self.seed_stream.next(),
+            max_steps=self.max_steps,
+            environment=self.environment,
+        )
+        nested_trace = nested_vm.run()
+
+        # Merge nested state into parent (namespaced under skill_call node)
+        nested_state: dict[str, Any] = {}
+        for nested_id, values in nested_vm.state.flatten().items():
+            self.state.set(node_id, f"nested.{nested_id}", values)
+            nested_state[f"nested.{nested_id}"] = values
 
         self.state.set(node_id, "skill_id", skill_id)
-        self.state.set(node_id, "response", response)
+        self.state.set(node_id, "nested_steps", len(nested_trace))
+
+        delta: dict[str, Any] = {
+            "skill_id": skill_id,
+            "nested_steps": len(nested_trace),
+        }
+        delta.update(nested_state)
 
         return StepResult(
             next=self._next_node(node_id),
-            state_delta={node_id: {"skill_id": skill_id, "response": response}},
+            state_delta={node_id: delta},
             trace_event={
                 "node_id": node_id,
                 "kind": "skill_call",
                 "skill_id": skill_id,
-                "response": response,
+                "nested_trace": [
+                    {"node_id": e.get("node_id"), "kind": e.get("kind")} for e in nested_trace
+                ],
+                "nested_steps": len(nested_trace),
             },
         )
 
