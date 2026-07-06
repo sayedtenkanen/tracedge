@@ -86,6 +86,31 @@ jobs:
             echo "Coverage report uploaded as artifact."
           } >> "$GITHUB_STEP_SUMMARY"
 
+  plan-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Run plan conformance tests
+        id: plan
+        run: pytest tests/plan/ -v --tb=short
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Plan Conformance"
+            echo ""
+            echo "Result: ${{ steps.plan.outcome }}"
+            echo ""
+            echo "Checks plan commitments against repo state."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   security:
     runs-on: ubuntu-latest
     timeout-minutes: 15
