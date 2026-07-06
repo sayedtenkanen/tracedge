@@ -87,8 +87,8 @@ def run_harness(
     def _target() -> None:
         nonlocal raised
         try:
-            exec(code, sandbox_globals)  # noqa: S102  # nosec B102
-        except Exception as e:  # noqa: BLE001
+            exec(code, sandbox_globals)  # nosec B102
+        except Exception as e:
             raised = e
 
     thread = threading.Thread(target=_target, daemon=True)

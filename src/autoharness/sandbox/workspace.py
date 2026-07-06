@@ -41,7 +41,7 @@ class Workspace:
         def _target() -> None:
             try:
                 result_box["result"] = tool_fn()
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 error_box.append(e)
 
         thread = threading.Thread(target=_target, daemon=True)

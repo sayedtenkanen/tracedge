@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from autoharness.intelligence.critic import CriticOutput
 from autoharness.intelligence.refiner import Refiner
 from autoharness.ir.harness import Harness
