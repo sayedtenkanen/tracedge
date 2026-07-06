@@ -9,7 +9,9 @@ from autoharness.sandbox.guardrails import check_harness_code
 
 # Restricted builtins: only safe, common names are available.
 # Reflection builtins (getattr, hasattr, type, super, property) are
-# excluded to prevent sandbox escape via __class__/__bases__/__subclasses__().
+# excluded to reduce the available reflection mechanisms and attack surface.
+# This does not fully prevent access to attributes like __class__/__bases__/__subclasses__
+# via normal attribute access (e.g., obj.__class__.__subclasses__()).
 _RESTRICTED_BUILTINS = {
     "abs": abs,
     "bool": bool,
