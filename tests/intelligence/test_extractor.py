@@ -72,7 +72,7 @@ class TestSkillExtraction:
         skill_node = extractor.extract_skill(patterns[0], graph)
         assert skill_node is not None
         assert skill_node.kind == "skill"
-        skill_id: str = skill_node.skill_id
+        skill_id: str = skill_node.skill_id  # type: ignore[attr-defined]
         nested_upir = extractor.skill_table[skill_id]
         assert len(nested_upir.nodes) >= 2
 
@@ -111,4 +111,4 @@ class TestSkillExtraction:
         skill = extractor.extract_skill(patterns[0], graph)
         assert skill is not None
         # Extracted skill should be stored in skill_table via extractor
-        assert extractor.skill_table.get(skill.skill_id) is not None
+        assert extractor.skill_table.get(skill.skill_id) is not None  # type: ignore[attr-defined]
