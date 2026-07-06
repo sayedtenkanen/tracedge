@@ -40,10 +40,7 @@ class TestPhase1ModulesExist:
 
 
 class TestPhase23NotStarted:
-    """PLAN: Phase 2/3 modules should not exist yet (Slices 7-16)."""
-
-    def test_no_skills_dir(self) -> None:
-        assert not (SRC / "skills").is_dir(), "skills/ should not exist before Slice 7"
+    """PLAN: Phase 2/3 modules should not exist yet (Slices 8-16)."""
 
     def test_no_memory_dir(self) -> None:
         assert not (SRC / "memory").is_dir(), "memory/ should not exist before Slice 10"

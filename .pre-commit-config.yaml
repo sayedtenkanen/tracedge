@@ -10,7 +10,9 @@ repos:
     rev: v2.1.0
     hooks:
       - id: mypy
-        additional_dependencies: [pydantic, pytest]
+        args: [--config-file=pyproject.toml, --ignore-missing-imports, src/, tests/, examples/]
+        additional_dependencies: ["pydantic[mypy]", pytest]
+        pass_filenames: false
 
   # Security — secrets detection
   - repo: https://github.com/gitleaks/gitleaks
