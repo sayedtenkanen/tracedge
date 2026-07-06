@@ -204,20 +204,30 @@ class VM:
         nested_trace = nested_vm.run()
 
         # Merge nested state into parent (namespaced under skill_call node)
+        nested_state: dict[str, Any] = {}
         for nested_id, values in nested_vm.state.flatten().items():
             self.state.set(node_id, f"nested.{nested_id}", values)
+            nested_state[f"nested.{nested_id}"] = values
 
         self.state.set(node_id, "skill_id", skill_id)
         self.state.set(node_id, "nested_steps", len(nested_trace))
 
+        delta: dict[str, Any] = {
+            "skill_id": skill_id,
+            "nested_steps": len(nested_trace),
+        }
+        delta.update(nested_state)
+
         return StepResult(
             next=self._next_node(node_id),
-            state_delta={node_id: {"skill_id": skill_id, "nested_steps": len(nested_trace)}},
+            state_delta={node_id: delta},
             trace_event={
                 "node_id": node_id,
                 "kind": "skill_call",
                 "skill_id": skill_id,
-                "nested_trace": nested_trace,
+                "nested_trace": [
+                    {"node_id": e.get("node_id"), "kind": e.get("kind")} for e in nested_trace
+                ],
                 "nested_steps": len(nested_trace),
             },
         )

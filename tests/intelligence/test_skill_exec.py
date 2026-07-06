@@ -64,6 +64,21 @@ class TestSkillExecution:
         assert "n1" in nested_node_ids, f"nested node n1 not in trace: {nested_node_ids}"
         assert "n2" in nested_node_ids, f"nested node n2 not in trace: {nested_node_ids}"
 
+    def test_skill_not_found_error(self) -> None:
+        """SkillCall emits error when skill_id is missing from skill_table."""
+        upir = _make_upir_with_skill()
+        skill_id = upir.nodes["call1"].skill_id  # type: ignore[union-attr]
+        assert skill_id in upir.skill_table
+        del upir.skill_table[skill_id]
+
+        vm = VM(upir=upir, llm=FakeLLM(), seed=1)
+        trace = vm.run()
+        skill_event = next(e for e in trace if e.get("kind") == "skill_call")
+
+        assert skill_event["error"] == f"skill '{skill_id}' not found in skill_table"
+        assert not skill_event.get("nested_trace")
+        assert not skill_event.get("nested_steps")
+
     def test_skill_registry_lookup(self) -> None:
         """SkillCall resolves skill by ID from skill_table."""
         upir = _make_upir_with_skill()

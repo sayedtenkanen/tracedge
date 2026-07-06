@@ -17,6 +17,10 @@ class SkillPruner:
         stats: dict[str, dict[str, int]] | None = None,
         min_success_rate: float = 0.0,
     ) -> None:
+        if not 0.0 <= min_success_rate <= 1.0:
+            raise ValueError(
+                f"min_success_rate must be between 0.0 and 1.0 inclusive; got {min_success_rate!r}"
+            )
         self.skill_table = skill_table
         self.stats = stats or {}
         self.min_success_rate = min_success_rate

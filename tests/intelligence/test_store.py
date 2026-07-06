@@ -54,3 +54,49 @@ class TestPersistentMemory:
             store2 = MemoryStore(data_dir=Path(tmpdir))
             assert store2.load_episode("ep1") is not None
             assert store2.load_skill_stats("s1")["usage"] == 5
+
+    def test_load_missing_episode_returns_none(self) -> None:
+        """Missing episodes load as None."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            assert store.load_episode("nonexistent") is None
+
+    def test_load_missing_skill_stats_uses_defaults(self) -> None:
+        """Missing skill stats load with default usage/successes."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            stats = store.load_skill_stats("nonexistent")
+            assert stats == {"usage": 0, "successes": 0}
+
+    def test_load_global_stats_defaults_when_missing(self) -> None:
+        """Global stats default to zeroed values when not yet persisted."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            stats = store.load_global_stats()
+            assert stats == {"total_runs": 0, "success_rate": 0.0}
+
+    def test_load_corrupted_episode_returns_none(self) -> None:
+        """Corrupted JSON file returns None instead of raising."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            path = Path(tmpdir) / "episodes" / "bad.json"
+            path.write_text("NOT VALID JSON{{{")
+            assert store.load_episode("bad") is None
+
+    def test_load_corrupted_skill_stats_returns_defaults(self) -> None:
+        """Corrupted skill stats file returns defaults instead of raising."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            path = Path(tmpdir) / "skills" / "bad.json"
+            path.write_text("{truncated")
+            stats = store.load_skill_stats("bad")
+            assert stats == {"usage": 0, "successes": 0}
+
+    def test_load_corrupted_global_stats_returns_defaults(self) -> None:
+        """Corrupted global stats file returns defaults instead of raising."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            path = Path(tmpdir) / "global_stats.json"
+            path.write_text("corrupt!")
+            stats = store.load_global_stats()
+            assert stats == {"total_runs": 0, "success_rate": 0.0}

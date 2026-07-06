@@ -80,3 +80,39 @@ class TestSkillPruning:
         pruned = pruner.prune()
         assert "good_skill" in pruned
         assert "bad_skill" in pruned
+
+    def test_prune_missing_stats_defaults_to_zero_usage(self) -> None:
+        """Skills without stats default to usage=0 and are pruned."""
+        table = _skill_table()
+        pruner = SkillPruner(
+            table,
+            stats={
+                "good_skill": {"usage": 10, "successes": 8},
+            },
+        )
+        pruned = pruner.prune()
+        assert "unused_skill" not in pruned
+        assert "good_skill" in pruned
+
+    def test_keep_success_rate_at_threshold(self) -> None:
+        """Skills with success_rate == threshold are retained."""
+        table = _skill_table()
+        pruner = SkillPruner(
+            table,
+            stats={
+                "bad_skill": {"usage": 10, "successes": 5},
+            },
+            min_success_rate=0.5,
+        )
+        pruned = pruner.prune()
+        assert "bad_skill" in pruned
+
+    def test_min_success_rate_out_of_range(self) -> None:
+        """min_success_rate outside [0, 1] raises ValueError."""
+        table = _skill_table()
+        import pytest
+
+        with pytest.raises(ValueError, match="min_success_rate must be between 0.0 and 1.0"):
+            SkillPruner(table, min_success_rate=-0.1)
+        with pytest.raises(ValueError, match="min_success_rate must be between 0.0 and 1.0"):
+            SkillPruner(table, min_success_rate=1.5)
