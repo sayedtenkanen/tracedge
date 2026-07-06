@@ -40,7 +40,7 @@ class OpenAIChatClient:
 
     def chat(self, prompt: str) -> str:
         """Send a prompt to the OpenAI API and return the response text."""
-        messages: list[dict[str, Any]] = []
+        messages: list[Any] = []
         if self._system_prompt:
             messages.append({"role": "system", "content": self._system_prompt})
         messages.append({"role": "user", "content": prompt})
