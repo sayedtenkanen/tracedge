@@ -93,6 +93,9 @@ def test_convergence_good_wins(tmp_path: Path) -> None:
             max_total_failures=10,
             data_dir=str(tmp_path / f"memory_{seed}"),
         )
+        assert result["status"] == "converged", (
+            f"seed={seed}: expected converged, got {result['status']}"
+        )
         if result["best_variant"] == "good":
             wins += 1
 
