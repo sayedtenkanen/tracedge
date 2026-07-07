@@ -49,6 +49,10 @@ def _score_success(trace: list[dict[str, Any]]) -> float:
     1. harness_call with verdict='ok' — sandboxed code ran successfully
     2. act event with env_result.done=True and reward>0 — environment reported success
     3. act event with env_result.info.success=True — tool reported success
+
+    Known-generous: ToolEnvironment rewards every successful write_file call,
+    so task_success=1 fires for any write — not just completed programs.
+    Acceptable for MVP because efficiency and safety still penalize waste.
     """
     for event in trace:
         # Signal 1: harness_call verdict
