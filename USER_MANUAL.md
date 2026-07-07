@@ -83,6 +83,117 @@ for event in trace:
 
 ---
 
+## Full Loop
+
+The `run_autoharness()` function wires together the entire pipeline — search, execution, scoring, skill extraction, and memory persistence — in a single call.
+
+```python
+from autoharness.ir.upir import UPIR, Edge, UPIRNode
+from autoharness.main import run_autoharness
+
+# 1. Define strategy variants
+variants = {
+    "fast": UPIR(
+        entry="observe",
+        nodes={
+            "observe": UPIRNode(kind="observe", node_id="observe", query="What is 2+2?"),
+            "answer": UPIRNode(kind="act", node_id="answer", tool="respond"),
+        },
+        edges=[Edge(from_="observe", to="answer", kind="sequential")],
+    ),
+    "thorough": UPIR(
+        entry="observe",
+        nodes={
+            "observe": UPIRNode(kind="observe", node_id="observe", query="What is 2+2?"),
+            "think": UPIRNode(kind="think", node_id="think", prompt="Think step by step"),
+            "answer": UPIRNode(kind="act", node_id="answer", tool="respond"),
+        },
+        edges=[
+            Edge(from_="observe", to="think", kind="sequential"),
+            Edge(from_="think", to="answer", kind="sequential"),
+        ],
+    ),
+}
+
+# 2. Any object with chat(prompt) -> str works as the LLM
+class MyLLM:
+    def chat(self, prompt: str) -> str:
+        return "4"
+
+# 3. Run the full loop
+result = run_autoharness(
+    variants=variants,
+    llm=MyLLM(),
+    seed=42,
+    max_search_iterations=10,
+    max_total_failures=5,
+    env_kind="tool",       # or "game" for game environments
+    data_dir="./memory",   # None for temp directory
+)
+
+# 4. Inspect results
+print(result["status"])            # "converged" | "max_iterations" | "max_failures"
+print(result["best_variant"])      # Name of the winning variant
+print(result["iterations"])        # How many search iterations ran
+print(result["episodes_saved"])    # Traces saved to memory
+print(result["skills_extracted"])  # Reusable patterns compiled
+```
+
+### What happens inside
+
+1. **Thompson search** — Each variant becomes a branch with a Beta(α, β) posterior. At each iteration, the branch with the highest sampled value is executed.
+2. **VM execution** — The winning variant's UPIR graph is walked step by step, producing a trace.
+3. **Reward scoring** — The trace is scored on task success, efficiency, and safety.
+4. **Posterior update** — The branch's Beta distribution is updated: α += reward, β += (1 - reward).
+5. **Skill extraction** — After search completes, repeated patterns in the best variant's traces are compiled into reusable skills.
+6. **Memory persistence** — All episodes, skill stats, and global stats are saved to disk.
+
+### Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `variants` | required | `dict[str, UPIR]` — named strategies to search over |
+| `llm` | required | Any object with `chat(prompt: str) -> str` |
+| `seed` | `42` | Random seed for reproducibility |
+| `max_search_iterations` | `10` | Budget for Thompson search |
+| `max_total_failures` | `5` | Failure budget before early stopping |
+| `env_kind` | `"tool"` | `"tool"` or `"game"` — affects reward weights |
+| `data_dir` | `None` | Directory for MemoryStore. Temp dir if None. |
+
+### Return value
+
+```python
+{
+    "status": "converged",        # Why search stopped
+    "best_variant": "thorough",   # Winning variant name
+    "iterations": 8,              # Search iterations used
+    "episodes_saved": 10,         # Traces saved
+    "skills_extracted": 5,        # Skills compiled
+}
+```
+
+### Using with real LLMs
+
+```python
+from autoharness.intelligence.llm_client import OpenAIChatClient
+
+llm = OpenAIChatClient(model="gpt-4o")
+result = run_autoharness(variants=variants, llm=llm, seed=42)
+```
+
+### Using with game environments
+
+```python
+result = run_autoharness(
+    variants=game_variants,
+    llm=my_llm,
+    seed=42,
+    env_kind="game",  # Uses game-specific reward weights
+)
+```
+
+---
+
 ## Core Concepts
 
 ### UPIR (Unified Policy IR)
@@ -133,6 +244,8 @@ upir = UPIR(
 ### Branching graph
 
 ```python
+from autoharness.ir.upir import UPIR, UPIRNode, Edge
+
 upir = UPIR(
     entry="start",
     nodes={
@@ -155,6 +268,8 @@ UPIR validates on construction:
 - Edge `from_` field accepts both `"from"` and `"from_"` (Pydantic alias)
 
 ```python
+from autoharness.ir.upir import UPIR, UPIRNode
+
 # This raises ValidationError
 UPIR(
     entry="missing",

@@ -6,7 +6,10 @@ import argparse
 import tempfile
 from importlib.metadata import version as _pkg_version
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from autoharness.ir.upir import UPIR, Edge, UPIRNode
 from autoharness.memory.store import MemoryStore
@@ -25,6 +28,7 @@ def run_autoharness(
     max_total_failures: int = 5,
     env_kind: str = "tool",
     data_dir: str | None = None,
+    env_factory: Callable[[int], Any] | None = None,
 ) -> dict[str, Any]:
     """Run the full AutoHarness loop: execute → score → search → extract → persist.
 
@@ -36,6 +40,8 @@ def run_autoharness(
         max_total_failures: Failure budget for Thompson search.
         env_kind: "tool" or "game" — affects reward weights.
         data_dir: Directory for MemoryStore. Uses temp dir if None.
+        env_factory: Callable taking a seed int and returning a fresh Environment.
+                     If None, VM runs without an environment.
 
     Returns:
         Dict with keys: status, best_variant, episodes_saved, skills_extracted.
@@ -67,7 +73,8 @@ def run_autoharness(
     def rollout(harness: Harness, roll_seed: int) -> tuple[float, bool]:
         variant_name = harness.code
         upir = variants[variant_name]
-        vm = VM(upir=upir, llm=llm, seed=roll_seed, environment=None)
+        env = env_factory(roll_seed) if env_factory is not None else None
+        vm = VM(upir=upir, llm=llm, seed=roll_seed, environment=env)
         trace = vm.run()
         all_traces.append(trace)
         r = score_trace(trace, env_kind=env_kind)
@@ -130,7 +137,6 @@ def _run_demo() -> None:
             return "0"
 
     env = GameEnvironment()
-    env.reset(seed=42)
 
     upir = UPIR(
         entry="observe",

@@ -30,12 +30,19 @@ class VM:
         self.max_steps = max_steps
         self.state = State()
         self.environment = environment
+        self._env_state: dict[str, Any] = {}
+        self._last_unresolved_refs: list[str] = []
 
     def run(self) -> list[dict[str, Any]]:
         """Execute the graph and return trace events."""
         trace: list[dict[str, Any]] = []
         current_id: str | None = self.upir.entry
         steps = 0
+
+        # Reset environment if present
+        if self.environment is not None:
+            self._env_state = self.environment.reset(seed=self.seed_stream.next())
+            self.state.set("__env__", "state", self._env_state)
 
         while current_id is not None and steps < self.max_steps:
             node = self.upir.nodes[current_id]
@@ -74,46 +81,102 @@ class VM:
     def _step_observe(self, node: UPIRNode) -> StepResult:
         node_id = node.node_id
         query = getattr(node, "query", "")
+
+        # If environment is present, observe its current state
+        env_info: dict[str, Any] = {}
+        if self.environment is not None and self._env_state:
+            env_info["env_state"] = self._env_state
+            legal = self.environment.legal_actions(self._env_state)
+            if legal is not None:
+                env_info["legal_actions"] = legal
+
         self.state.set(node_id, "query", query)
         self.state.set(node_id, "observed", True)
+        if env_info:
+            self.state.set(node_id, "env_info", env_info)
+
+        trace_event: dict[str, Any] = {
+            "node_id": node_id,
+            "kind": "observe",
+            "query": query,
+        }
+        if env_info:
+            trace_event["env_info"] = env_info
+
         return StepResult(
             next=self._next_node(node_id),
-            state_delta={node_id: {"query": query, "observed": True}},
-            trace_event={"node_id": node_id, "kind": "observe", "query": query},
+            state_delta={node_id: {"query": query, "observed": True, **env_info}},
+            trace_event=trace_event,
         )
 
     def _step_act(self, node: UPIRNode) -> StepResult:
         node_id = node.node_id
         tool = getattr(node, "tool", "")
         args = getattr(node, "args", {})
+        args = self._resolve_dict_templates(args)
+        unresolved = list(self._last_unresolved_refs)
         self.state.set(node_id, "tool", tool)
         self.state.set(node_id, "args", args)
+
+        # Execute via environment if present
+        env_result: dict[str, Any] = {}
+        if self.environment is not None:
+            action = {"tool": tool, **args}
+            next_env_state, reward, done, info = self.environment.step(self._env_state, action)
+            self._env_state = next_env_state
+            self.state.set("__env__", "state", self._env_state)
+            env_result = {
+                "reward": reward,
+                "done": done,
+                "info": info,
+            }
+            if info:
+                env_result["tool_output"] = info
+
+        trace_event: dict[str, Any] = {
+            "node_id": node_id,
+            "kind": "act",
+            "tool": tool,
+            "args": args,
+        }
+        if env_result:
+            trace_event["env_result"] = env_result
+        if unresolved:
+            trace_event["unresolved_refs"] = unresolved
+
         return StepResult(
             next=self._next_node(node_id),
-            state_delta={node_id: {"tool": tool, "args": args}},
-            trace_event={"node_id": node_id, "kind": "act", "tool": tool, "args": args},
+            state_delta={node_id: {"tool": tool, "args": args, **env_result}},
+            trace_event=trace_event,
         )
 
     def _step_think(self, node: UPIRNode) -> StepResult:
         node_id = node.node_id
         prompt = getattr(node, "prompt", "")
+        prompt = self._resolve_templates(prompt)
+        unresolved = list(self._last_unresolved_refs)
         response = self.llm.chat(prompt)
         self.state.set(node_id, "prompt", prompt)
         self.state.set(node_id, "response", response)
+        event: dict[str, Any] = {
+            "node_id": node_id,
+            "kind": "think",
+            "prompt": prompt,
+            "response": response,
+        }
+        if unresolved:
+            event["unresolved_refs"] = unresolved
         return StepResult(
             next=self._next_node(node_id),
             state_delta={node_id: {"prompt": prompt, "response": response}},
-            trace_event={
-                "node_id": node_id,
-                "kind": "think",
-                "prompt": prompt,
-                "response": response,
-            },
+            trace_event=event,
         )
 
     def _step_branch(self, node: UPIRNode) -> StepResult:
         node_id = node.node_id
         condition = getattr(node, "condition", "")
+        condition = self._resolve_templates(condition)
+        unresolved = list(self._last_unresolved_refs)
         true_next = getattr(node, "true_next", "")
         false_next = getattr(node, "false_next", "")
 
@@ -122,14 +185,17 @@ class VM:
         taken = response.strip().lower().startswith("true")
 
         next_id = true_next if taken else false_next
+        event: dict[str, Any] = {
+            "node_id": node_id,
+            "kind": "branch",
+            "condition": condition,
+            "taken": "true" if taken else "false",
+        }
+        if unresolved:
+            event["unresolved_refs"] = unresolved
         return StepResult(
             next=next_id,
-            trace_event={
-                "node_id": node_id,
-                "kind": "branch",
-                "condition": condition,
-                "taken": "true" if taken else "false",
-            },
+            trace_event=event,
         )
 
     def _step_harness_call(self, node: UPIRNode) -> StepResult:
@@ -260,3 +326,43 @@ class VM:
             if edge.from_ == current_id and edge.kind == "sequential":
                 return edge.to
         return None
+
+    def _resolve_templates(self, text: str) -> str:
+        """Resolve {node_id.key} template references from State.
+
+        Populates ``self._last_unresolved_refs`` with any references that could
+        not be resolved, so callers can surface them as trace errors.
+        """
+        import re
+
+        flat = self.state.flatten()
+        unresolved: list[str] = []
+
+        def _replace(match: re.Match[str]) -> str:
+            ref = match.group(1)
+            parts = ref.split(".", 1)
+            if len(parts) == 2:
+                node_id, key = parts
+                node_data = flat.get(node_id, {})
+                if key in node_data:
+                    value = node_data[key]
+                    return str(value) if not isinstance(value, str) else value
+                # Key exists but value missing — record as unresolved
+                unresolved.append(match.group(0))
+                return match.group(0)
+            # Not a node_id.key pattern — leave as-is
+            unresolved.append(match.group(0))
+            return match.group(0)
+
+        self._last_unresolved_refs = unresolved
+        return re.sub(r"\{([^}]+)\}", _replace, text)
+
+    def _resolve_dict_templates(self, d: dict[str, Any]) -> dict[str, Any]:
+        """Resolve template strings in all values of a dict."""
+        resolved: dict[str, Any] = {}
+        for key, value in d.items():
+            if isinstance(value, str) and "{" in value and "}" in value:
+                resolved[key] = self._resolve_templates(value)
+            else:
+                resolved[key] = value
+        return resolved

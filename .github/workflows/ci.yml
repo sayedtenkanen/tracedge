@@ -111,6 +111,35 @@ jobs:
             echo "Checks plan commitments against repo state."
           } >> "$GITHUB_STEP_SUMMARY"
 
+  doc-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Verify doc snippets (parse + import)
+        id: doc_parse
+        run: python scripts/verify_doc_snippets.py
+      - name: Verify README quickstart (executable)
+        id: doc_exec
+        run: python scripts/verify_doc_snippets.py --executable
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Doc Verification"
+            echo ""
+            echo "| Check | Status |"
+            echo "|-------|--------|"
+            echo "| parse + import | ${{ steps.doc_parse.outcome }} |"
+            echo "| executable (README) | ${{ steps.doc_exec.outcome }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   security:
     runs-on: ubuntu-latest
     timeout-minutes: 15

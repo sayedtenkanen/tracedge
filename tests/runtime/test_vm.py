@@ -132,3 +132,65 @@ class TestVMTermination:
         vm = VM(upir=upir, llm=FakeLLM(), seed=42, max_steps=1)
         result = vm.run()
         assert len(result) <= 2
+
+
+class TestVMTemplateResolution:
+    def test_resolved_template_in_think(self) -> None:
+        """{observe.query} in think prompt is resolved from State."""
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {"kind": "observe", "node_id": "n1", "query": "hello"},
+                "n2": {"kind": "think", "node_id": "n2", "prompt": "{n1.query}"},
+            },
+            edges=[Edge(from_="n1", to="n2", kind="sequential")],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=FakeLLM(), seed=42)
+        trace = vm.run()
+        think_event = trace[1]
+        assert think_event["prompt"] == "hello"
+
+    def test_unresolved_template_produces_error(self) -> None:
+        """Unresolved {nonexistent.key} produces an error in the trace event."""
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {
+                    "kind": "think",
+                    "node_id": "n1",
+                    "prompt": "{nonexistent.response}",
+                },
+            },
+            edges=[],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=FakeLLM(), seed=42)
+        trace = vm.run()
+        event = trace[0]
+        assert "unresolved_refs" in event
+        assert "{nonexistent.response}" in event["unresolved_refs"]
+
+    def test_unresolved_template_in_act_args(self) -> None:
+        """Unresolved template in act args produces an error."""
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {
+                    "kind": "act",
+                    "node_id": "n1",
+                    "tool": "write",
+                    "args": {"content": "{think.response}"},
+                },
+            },
+            edges=[],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=FakeLLM(), seed=42)
+        trace = vm.run()
+        event = trace[0]
+        assert "unresolved_refs" in event
+        assert "{think.response}" in event["unresolved_refs"]
