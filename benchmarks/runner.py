@@ -13,7 +13,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from autoharness.ir.upir import UPIR
 from autoharness.main import run_autoharness
 from autoharness.memory.store import MemoryStore
 
@@ -88,11 +87,10 @@ class BenchmarkSuite:
 
         all_calls_baseline = [c for r in baseline for c in r.llm_calls]
         all_calls_reuse = [c for r in reuse for c in r.llm_calls]
-        all_saved_reuse = [s for r in reuse for s in r.llm_calls_saved]
 
         mean_calls_baseline = statistics.mean(all_calls_baseline) if all_calls_baseline else 0.0
         mean_calls_reuse = statistics.mean(all_calls_reuse) if all_calls_reuse else 0.0
-        mean_saved = statistics.mean(all_saved_reuse) if all_saved_reuse else 0.0
+        mean_saved = mean_calls_baseline - mean_calls_reuse
 
         pct_reduction = (
             ((mean_calls_baseline - mean_calls_reuse) / mean_calls_baseline * 100)
@@ -119,10 +117,8 @@ def _run_baseline_phase(
 ) -> dict[str, dict[str, Any]]:
     """Run baseline variants to extract and persist skills.
 
-    Creates task-specific skills from the baseline UPIR's harness_table
-    (for code_gen/tool tasks) or from the predefined training_skills
-    (for game tasks). The skill contains the act→harness_call subgraph
-    without think nodes, so replaying it skips LLM calls.
+    Persists each task's predefined training_skills into MemoryStore so
+    the reuse variant can reference them via skill_call nodes.
 
     Returns dict mapping task_name → last run_autoharness result.
     """
@@ -130,53 +126,10 @@ def _run_baseline_phase(
     for task in tasks:
         task_dir = str(Path(data_dir) / "training" / task.name)
 
-        # Create task-specific skill from the baseline UPIR's harness_table
+        # Persist predefined training skills
         store = MemoryStore(data_dir=Path(task_dir))
-        baseline_upir = next(iter(task.baseline_variants.values()))
-
-        if task.category in ("code_gen", "tool"):
-            # Extract act→harness_call from baseline, using its harness_table
-            harness_id = None
-            harness_code = None
-            harness_nid = None
-            for nid, node in baseline_upir.nodes.items():
-                if node.kind == "harness_call":
-                    harness_nid = nid
-                    harness_id = node.harness_id
-                    harness_code = baseline_upir.harness_table.get(harness_id, "")
-                    break
-
-            if harness_id is not None and harness_code is not None:
-                # Find the act node in the baseline (any act node)
-                act_node_id = None
-                for nid2, node2 in baseline_upir.nodes.items():
-                    if node2.kind == "act":
-                        act_node_id = nid2
-                        break
-
-                if act_node_id:
-                    skill_upir = UPIR(
-                        entry=act_node_id,
-                        nodes={
-                            act_node_id: baseline_upir.nodes[act_node_id],
-                            harness_nid: baseline_upir.nodes[harness_nid],
-                        },
-                        edges=[{"from": act_node_id, "to": harness_nid, "kind": "sequential"}],
-                        harness_table={harness_id: harness_code},
-                    )
-                else:
-                    # No act node found — just use the harness_call
-                    skill_upir = UPIR(
-                        entry=harness_nid,
-                        nodes={harness_nid: baseline_upir.nodes[harness_nid]},
-                        edges=[],
-                        harness_table={harness_id: harness_code},
-                    )
-                store.save_skill("skill_1", skill_upir)
-        else:
-            # Game tasks — use predefined training skills
-            for skill_id, skill_upir in task.training_skills.items():
-                store.save_skill(skill_id, skill_upir)
+        for skill_id, skill_upir in task.training_skills.items():
+            store.save_skill(skill_id, skill_upir)
 
         last_result: dict[str, Any] = {}
         for seed in task.seeds:

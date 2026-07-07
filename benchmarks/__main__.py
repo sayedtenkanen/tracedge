@@ -10,9 +10,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from benchmarks.tasks import Task
+
 from benchmarks.report import generate_report
 from benchmarks.runner import run_benchmark
-from benchmarks.tasks import ALL_TASKS, TASKS_BY_CATEGORY, Task
+from benchmarks.tasks import ALL_TASKS, TASKS_BY_CATEGORY
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -61,9 +63,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         for task in tasks:
             task.seeds = args.seeds
 
-    for task in tasks:
-        task.max_search_iterations = args.max_iterations
-
     if args.dry_run:
         print(f"Would run {len(tasks)} tasks:")
         for t in tasks:
@@ -72,7 +71,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     print(f"Running {len(tasks)} tasks ({len(tasks) * 2} runs: no_reuse + reuse)...")
     with tempfile.TemporaryDirectory(prefix="autobench_") as tmpdir:
-        suite = run_benchmark(tasks, data_dir_prefix=tmpdir)
+        suite = run_benchmark(tasks, data_dir_prefix=tmpdir, max_iterations=args.max_iterations)
 
     report = generate_report(suite, output_path=args.output)
     print(f"\nReport written to {args.output}")

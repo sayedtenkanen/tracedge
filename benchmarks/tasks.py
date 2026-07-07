@@ -31,9 +31,8 @@ class Task:
     training_skills: dict[str, UPIR]
     llm: Any
     env_kind: str  # "tool" or "game"
-    env_factory: Callable[[], Any] | None = None
+    env_factory: Callable[[int], Any] | None = None
     seeds: list[int] = field(default_factory=lambda: [42, 43, 44, 45, 46])
-    max_search_iterations: int = 15
     max_total_failures: int = 10
     success_threshold: float = 0.8
 
