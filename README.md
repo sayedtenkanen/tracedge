@@ -2,7 +2,7 @@
 
 Probabilistic program compiler that discovers, compiles, and reuses successful behavioral patterns from LLM execution traces — turning one-shot successes into reliable, reusable subprograms.
 
-Inspired by [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026).
+Implements and extends [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026) — the paper synthesizes constraint harnesses; this project compiles execution traces into reusable, LLM-free skills.
 
 ## Quick start
 
