@@ -60,17 +60,23 @@ Works with any LLM exposing a chat interface — OpenAI adapter included. Swap m
 
 ## Use Cases
 
-### 1. Coding Assistants
-An agent that writes code. AutoHarness detects that "write test → run test → fix error" is a repeated successful pattern, compiles it into a skill, and reuses it — reducing token costs and improving reliability.
+### 1. Self-Improving Coding Agent
+Define coding strategy variants (direct, with-fix, iterative). AutoHarness searches over them with Thompson sampling, finds the best one, and extracts reusable fix patterns. **One call:** `run_autoharness(variants, llm)`.
 
-### 2. Multi-Step Workflows
-An agent that researches, summarizes, and formats. AutoHarness extracts the successful research→summarize pipeline as a reusable skill for future queries.
+### 2. Automated Data Pipeline
+Define pipeline variants (simple, validated, multi-stage). AutoHarness discovers which transformation sequence works best and extracts it as a reusable skill. No manual prompt tuning required.
 
-### 3. Game Playing
-An agent that plays Tic-Tac-Toe. AutoHarness discovers winning strategies through Thompson search and compiles them into deterministic skill subroutines.
+### 3. Game Strategy Discovery
+Define game strategies (center-first, corner-first, adaptive). Thompson search finds the winning strategy through Bayesian exploration. Winning patterns are compiled into deterministic skills.
 
-### 4. Tool-Augmented Agents
-An agent that reads files, processes data, and writes outputs. AutoHarness captures the successful tool-use patterns and makes them available as skills.
+### 4. Multi-Step Research Assistant
+Define research workflows (linear, with-review, iterative). AutoHarness finds which workflow produces the best output and extracts the full pipeline as a reusable skill.
+
+### 5. Tool-Augmented Agent with Skill Reuse
+Define tool-use patterns (basic, validated). AutoHarness detects successful tool-use sequences and compiles them into skills that skip the LLM entirely — reducing token cost.
+
+### 6. Custom Agent from Scratch
+Define architecture variants (simple, planned, iterative). AutoHarness discovers which architecture is most reliable and extracts the winning design as a reusable skill.
 
 ## Go-to-Market Strategy
 
