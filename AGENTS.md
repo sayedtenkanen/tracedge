@@ -43,7 +43,7 @@ bash scripts/check-violations.sh
 bash scripts/update-violations.sh
 
 # Coverage
-pytest --cov=autoharness --cov-report=term-missing
+pytest --cov=tracedge --cov-report=term-missing
 
 # Security — full scan
 bash scripts/security-scan.sh
@@ -52,7 +52,7 @@ bash scripts/security-scan.sh
 gitleaks detect --source .
 
 # Security — Python static analysis
-bandit -r src/autoharness -c pyproject.toml
+bandit -r src/tracedge -c pyproject.toml
 
 # Security — dependency vulnerabilities
 safety check
@@ -80,7 +80,7 @@ feat(scope): implement X to pass tests
 ## Project structure
 
 ```
-src/autoharness/
+src/tracedge/
 ├── ir/           # UPIR + Harness IR types (Slice 1)
 ├── runtime/      # VM execution engine (Slice 1)
 ├── environment/  # Pluggable env protocol (Slice 1)

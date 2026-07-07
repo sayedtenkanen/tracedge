@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from autoharness.intelligence.critic import CriticOutput
-from autoharness.intelligence.refiner import Refiner
-from autoharness.ir.harness import Harness
+from tracedge.intelligence.critic import CriticOutput
+from tracedge.intelligence.refiner import Refiner
+from tracedge.ir.harness import Harness
 
 
 class TestRefinerBasicRewrite:

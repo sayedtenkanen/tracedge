@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from autoharness.ir.upir import UPIR, Edge
+from tracedge.ir.upir import UPIR, Edge
 
 
 class TestUPIRConstruction:

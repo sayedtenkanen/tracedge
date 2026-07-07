@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from autoharness.ir.upir import UPIR
+    from tracedge.ir.upir import UPIR
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class MemoryStore:
     """JSON-file-backed persistent store for episodes, skill stats, and global stats."""
 
-    def __init__(self, data_dir: Path | str = ".autoharness_memory") -> None:
+    def __init__(self, data_dir: Path | str = ".tracedge_memory") -> None:
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         (self.data_dir / "episodes").mkdir(exist_ok=True)
@@ -79,7 +79,7 @@ class MemoryStore:
 
     def load_skill(self, skill_id: str) -> UPIR | None:
         """Read a skill UPIR from disk. Returns None if not found or corrupted."""
-        from autoharness.ir.upir import UPIR as _UPIR
+        from tracedge.ir.upir import UPIR as _UPIR
 
         path = self.data_dir / "skills" / f"{skill_id}_upir.json"
         if not path.exists():
@@ -92,7 +92,7 @@ class MemoryStore:
 
     def load_skills(self) -> dict[str, UPIR]:
         """Load all stored skills from disk. Returns dict of skill_id → UPIR."""
-        from autoharness.ir.upir import UPIR as _UPIR
+        from tracedge.ir.upir import UPIR as _UPIR
 
         skills_dir = self.data_dir / "skills"
         result: dict[str, UPIR] = {}

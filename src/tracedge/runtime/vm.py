@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from autoharness.ir.upir import UPIR, UPIRNode
+    from tracedge.ir.upir import UPIR, UPIRNode
 
-from autoharness.ir.upir import UPIRNode as _UPIRNode
-from autoharness.runtime.seed import SeedStream
-from autoharness.runtime.state import State
-from autoharness.runtime.step import StepResult
+from tracedge.ir.upir import UPIRNode as _UPIRNode
+from tracedge.runtime.seed import SeedStream
+from tracedge.runtime.state import State
+from tracedge.runtime.step import StepResult
 
 
 class VM:
@@ -217,7 +217,7 @@ class VM:
             harness_code = str(harness_entry)
 
         # Execute via sandboxed runner
-        from autoharness.sandbox.harness_runner import run_harness
+        from tracedge.sandbox.harness_runner import run_harness
 
         result = run_harness(
             harness_code,

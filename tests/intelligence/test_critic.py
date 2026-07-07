@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from autoharness.intelligence.critic import Critic, CriticOutput
+from tracedge.intelligence.critic import Critic, CriticOutput
 
 
 class TestCriticFailureClustering:
@@ -141,7 +141,7 @@ class TestCriticRealHarnessErrors:
     """Critic handles real run_harness error strings without crashing."""
 
     def test_real_exception_string_through_critic(self) -> None:
-        from autoharness.sandbox.harness_runner import run_harness
+        from tracedge.sandbox.harness_runner import run_harness
 
         result = run_harness(code="raise NameError('oops')")
         assert result["verdict"] == "error"

@@ -23,7 +23,7 @@ set -uo pipefail
 
 # --- Configuration -----------------------------------------------------------
 
-SOURCE_DIR="${SOURCE_DIR:-src/autoharness}"
+SOURCE_DIR="${SOURCE_DIR:-src/tracedge}"
 
 # --- Argument parsing --------------------------------------------------------
 
@@ -38,7 +38,7 @@ for arg in "$@"; do
             echo "Usage: $0 [--verbose] [--quiet]"
             echo ""
             echo "Environment variables:"
-            echo "  SOURCE_DIR  Source directory to scan (default: src/autoharness)"
+            echo "  SOURCE_DIR  Source directory to scan (default: src/tracedge)"
             exit 0
             ;;
     esac

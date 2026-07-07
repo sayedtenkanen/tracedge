@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from autoharness.sandbox.guardrails import check_harness_code
+from tracedge.sandbox.guardrails import check_harness_code
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from autoharness.intelligence.critic import CriticOutput
-    from autoharness.ir.harness import Harness
+    from tracedge.intelligence.critic import CriticOutput
+    from tracedge.ir.harness import Harness
 
 
 class Refiner:
@@ -42,7 +42,7 @@ class Refiner:
         Raises:
             ValueError: If all retries produce invalid code.
         """
-        from autoharness.ir.harness import Harness as HarnessClass
+        from tracedge.ir.harness import Harness as HarnessClass
 
         prompt = self._build_prompt(harness, feedback)
 

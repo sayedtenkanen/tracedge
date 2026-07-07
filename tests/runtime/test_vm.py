@@ -1,5 +1,5 @@
-from autoharness.ir.upir import UPIR, Edge
-from autoharness.runtime.vm import VM
+from tracedge.ir.upir import UPIR, Edge
+from tracedge.runtime.vm import VM
 
 
 class FakeLLM:
@@ -97,7 +97,7 @@ class TestVMDeterministicReplay:
         assert r1 == r2
 
     def test_different_seed_different_trace(self) -> None:
-        from autoharness.runtime.seed import SeedStream
+        from tracedge.runtime.seed import SeedStream
 
         s1 = SeedStream(seed=42)
         s2 = SeedStream(seed=99)

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import random
 
-from autoharness.ir.harness import Harness
-from autoharness.search.thompson import (
+from tracedge.ir.harness import Harness
+from tracedge.search.thompson import (
     Branch,
     SearchConfig,
     ThompsonTreeSearch,

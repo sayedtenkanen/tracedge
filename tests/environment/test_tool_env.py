@@ -1,4 +1,4 @@
-from autoharness.environment.tool_env import ToolEnvironment
+from tracedge.environment.tool_env import ToolEnvironment
 
 
 class TestToolEnvironment:

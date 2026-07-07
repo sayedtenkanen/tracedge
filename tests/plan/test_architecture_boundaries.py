@@ -9,7 +9,7 @@ from __future__ import annotations
 import ast
 import pathlib
 
-SRC = pathlib.Path("src/autoharness")
+SRC = pathlib.Path("src/tracedge")
 
 
 def _import_graph() -> dict[str, set[str]]:
@@ -25,11 +25,11 @@ def _import_graph() -> dict[str, set[str]]:
         imports: set[str] = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.module:
-                if node.module.startswith("autoharness"):
+                if node.module.startswith("tracedge"):
                     imports.add(node.module.split(".")[1])
             elif isinstance(node, ast.Import):
                 for alias in node.names:
-                    if alias.name.startswith("autoharness"):
+                    if alias.name.startswith("tracedge"):
                         imports.add(alias.name.split(".")[1])
         graph[module] = imports
     return graph

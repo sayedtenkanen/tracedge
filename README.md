@@ -8,8 +8,8 @@ Implements and extends [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou
 
 ```python
 # executable
-from autoharness.ir.upir import UPIR, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, UPIRNode
+from tracedge.main import run_tracedge
 
 # Define strategy variants — one succeeds, one fails
 variants = {
@@ -33,7 +33,7 @@ class MyLLM:
         return "ok"
 
 # Run the full loop: execute → score → search → extract → persist
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=MyLLM(),
     seed=42,
@@ -88,7 +88,7 @@ python examples/end_to_end.py
 ## Architecture
 
 ```
-run_autoharness()
+run_tracedge()
   ├─ ThompsonTreeSearch  — Bayesian exploration over strategy variants
   ├─ VM                  — step-by-step UPIR interpreter
   ├─ Score               — reward = f(task_success, efficiency, safety)

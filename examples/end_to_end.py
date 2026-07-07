@@ -15,8 +15,8 @@ import json
 import tempfile
 from pathlib import Path
 
-from autoharness.ir.upir import UPIR, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, UPIRNode
+from tracedge.main import run_tracedge
 
 
 class DemoLLM:
@@ -54,7 +54,7 @@ def main() -> None:
     print("  bad:  always fails   (harness_call verdict='error')\n")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        result = run_autoharness(
+        result = run_tracedge(
             variants=variants,
             llm=DemoLLM(),
             seed=42,

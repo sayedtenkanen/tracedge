@@ -1,9 +1,9 @@
 """Code task demo — ToolEnvironment with UPIR VM and Reward scoring."""
 
-from autoharness.environment.tool_env import ToolEnvironment
-from autoharness.ir.upir import UPIR, Edge
-from autoharness.reward.scorer import score_trace, value
-from autoharness.runtime.vm import VM
+from tracedge.environment.tool_env import ToolEnvironment
+from tracedge.ir.upir import UPIR, Edge
+from tracedge.reward.scorer import score_trace, value
+from tracedge.runtime.vm import VM
 
 
 class SimpleLLM:
@@ -20,7 +20,7 @@ class SimpleLLM:
 
 
 def main() -> None:
-    env = ToolEnvironment(workspace="/tmp/autoharness_demo")  # nosec B108
+    env = ToolEnvironment(workspace="/tmp/tracedge_demo")  # nosec B108
 
     # Build a UPIR: observe → think → act
     upir = UPIR(
@@ -41,7 +41,7 @@ def main() -> None:
                 "node_id": "execute",
                 "tool": "write_file",
                 "args": {
-                    "path": "/tmp/autoharness_demo/output.txt",  # nosec B108
+                    "path": "/tmp/tracedge_demo/output.txt",  # nosec B108
                     "content": "Hello from AutoHarness!",
                 },
             },

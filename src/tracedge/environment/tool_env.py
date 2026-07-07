@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from autoharness.sandbox.workspace import Workspace
+from tracedge.sandbox.workspace import Workspace
 
 if TYPE_CHECKING:
     from collections.abc import Callable

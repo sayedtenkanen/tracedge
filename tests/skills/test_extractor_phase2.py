@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from autoharness.ir.upir import UPIR, UPIRNode
-from autoharness.skills.extractor import SkillExtractor
-from autoharness.trace.trace_ir import TraceEvent, TraceLog
+from tracedge.ir.upir import UPIR, UPIRNode
+from tracedge.skills.extractor import SkillExtractor
+from tracedge.trace.trace_ir import TraceEvent, TraceLog
 
 
 def _trace(events: list[dict[str, Any]]) -> TraceLog:

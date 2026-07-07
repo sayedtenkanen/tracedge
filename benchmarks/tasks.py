@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-from autoharness.ir.upir import UPIR, UPIRNode
+from tracedge.ir.upir import UPIR, UPIRNode
 
 
 @dataclass
@@ -167,7 +167,7 @@ def _make_game_task(
     Baseline: think → observe → act → think → observe → act (6 events, 2 LLM calls).
     Reuse: skill_call (observe→act) → no think nodes → 0 LLM calls.
     """
-    from autoharness.environment.game_env import GameEnvironment
+    from tracedge.environment.game_env import GameEnvironment
 
     # The "learned" skill: observe→act (deterministic game play)
     skill_upir = UPIR(

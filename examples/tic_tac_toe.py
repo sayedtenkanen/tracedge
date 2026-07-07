@@ -1,9 +1,9 @@
 """Tic-Tac-Toe demo — GameEnvironment with UPIR VM and Reward scoring."""
 
-from autoharness.environment.game_env import GameEnvironment
-from autoharness.ir.upir import UPIR, Edge
-from autoharness.reward.scorer import score_trace, value
-from autoharness.runtime.vm import VM
+from tracedge.environment.game_env import GameEnvironment
+from tracedge.ir.upir import UPIR, Edge
+from tracedge.reward.scorer import score_trace, value
+from tracedge.runtime.vm import VM
 
 
 class RandomPlayer:

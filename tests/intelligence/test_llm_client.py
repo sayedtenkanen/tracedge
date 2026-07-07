@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from autoharness.intelligence.llm_client import LLMClient, OpenAIChatClient
+from tracedge.intelligence.llm_client import LLMClient, OpenAIChatClient
 
 
 class TestLLMClientProtocol:
@@ -97,8 +97,8 @@ class TestOpenAIChatClient:
 
     def test_passes_through_to_vm(self) -> None:
         """OpenAIChatClient can be passed directly to VM."""
-        from autoharness.ir.upir import UPIR, UPIRNode
-        from autoharness.runtime.vm import VM
+        from tracedge.ir.upir import UPIR, UPIRNode
+        from tracedge.runtime.vm import VM
 
         mock_response = MagicMock()
         mock_response.choices = [MagicMock(message=MagicMock(content="4"))]

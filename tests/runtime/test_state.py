@@ -1,4 +1,4 @@
-from autoharness.runtime.state import State
+from tracedge.runtime.state import State
 
 
 class TestStateNamespacing:

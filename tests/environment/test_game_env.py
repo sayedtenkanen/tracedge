@@ -1,6 +1,6 @@
 """Tests for GameEnvironment — legal-action-constrained game wrapper."""
 
-from autoharness.environment.game_env import GameEnvironment
+from tracedge.environment.game_env import GameEnvironment
 
 
 class TestGameEnvironment:

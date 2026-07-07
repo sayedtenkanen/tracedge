@@ -3,8 +3,8 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "autoharness"
-version = "0.1.0"
+name = "tracedge"
+version = "0.2.0"
 description = "Probabilistic program compiler over UPIR with Thompson tree search"
 readme = "README.md"
 license = "MIT"
@@ -39,11 +39,11 @@ Repository = "https://github.com/sayedtenkanen/auto-harnessessing"
 Issues = "https://github.com/sayedtenkanen/auto-harnessessing/issues"
 
 [project.scripts]
-autoharness = "autoharness.main:cli"
+tracedge = "tracedge.main:cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["autoharness*"]
+include = ["tracedge*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -64,7 +64,7 @@ target-version = "py312"
 select = ["E", "F", "I", "N", "W", "UP", "B", "A", "SIM", "TCH", "RUF100"]
 
 [tool.bandit]
-targets = ["src/autoharness"]
+targets = ["src/tracedge"]
 exclude_dirs = ["tests"]
 # Skip specific checks:
 # B105: hard-coded password strings (not applicable to this codebase)

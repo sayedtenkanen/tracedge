@@ -61,7 +61,7 @@ Works with any LLM exposing a chat interface — OpenAI adapter included. Swap m
 ## Use Cases
 
 ### 1. Self-Improving Coding Agent
-Define coding strategy variants (direct, with-fix, iterative). AutoHarness searches over them with Thompson sampling, finds the best one, and extracts reusable fix patterns. **One call:** `run_autoharness(variants, llm)`.
+Define coding strategy variants (direct, with-fix, iterative). AutoHarness searches over them with Thompson sampling, finds the best one, and extracts reusable fix patterns. **One call:** `run_tracedge(variants, llm)`.
 
 ### 2. Automated Data Pipeline
 Define pipeline variants (simple, validated, multi-stage). AutoHarness discovers which transformation sequence works best and extracts it as a reusable skill. No manual prompt tuning required.

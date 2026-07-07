@@ -11,12 +11,12 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.memory.store import MemoryStore
-from autoharness.reward.scorer import score_trace, value
-from autoharness.runtime.vm import VM
-from autoharness.search.thompson import SearchConfig, ThompsonTreeSearch
-from autoharness.skills.extractor import SkillExtractor
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.memory.store import MemoryStore
+from tracedge.reward.scorer import score_trace, value
+from tracedge.runtime.vm import VM
+from tracedge.search.thompson import SearchConfig, ThompsonTreeSearch
+from tracedge.skills.extractor import SkillExtractor
 
 
 def _has_llm_nodes(upir: UPIR) -> bool:
@@ -26,7 +26,7 @@ def _has_llm_nodes(upir: UPIR) -> bool:
     )
 
 
-def run_autoharness(
+def run_tracedge(
     variants: dict[str, UPIR],
     llm: Any,
     seed: int = 42,
@@ -75,7 +75,7 @@ def run_autoharness(
     )
     search = ThompsonTreeSearch(config=config, env_kind=env_kind)
 
-    from autoharness.ir.harness import Harness
+    from tracedge.ir.harness import Harness
 
     variant_list = list(variants.items())
     for name, _upir in variant_list:
@@ -183,7 +183,7 @@ def run_autoharness(
 
 def _run_demo() -> None:
     """Run the tic-tac-toe demo end-to-end with a fake LLM."""
-    from autoharness.environment.game_env import GameEnvironment
+    from tracedge.environment.game_env import GameEnvironment
 
     class DemoLLM:
         def chat(self, prompt: str) -> str:
@@ -219,7 +219,7 @@ def cli() -> None:
     """Minimal CLI entry point."""
     parser = argparse.ArgumentParser(description="AutoHarness — probabilistic program compiler")
     parser.add_argument("--demo", action="store_true", help="Run the tic-tac-toe demo")
-    parser.add_argument("--version", action="version", version=_pkg_version("autoharness"))
+    parser.add_argument("--version", action="version", version=_pkg_version("tracedge"))
     args = parser.parse_args()
 
     if args.demo:

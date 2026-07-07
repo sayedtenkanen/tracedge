@@ -1,6 +1,6 @@
 # AutoHarness — Use Cases
 
-Each use case shows a complete end-to-end run. Define variants, call `run_autoharness()`, get results.
+Each use case shows a complete end-to-end run. Define variants, call `run_tracedge()`, get results.
 
 ---
 
@@ -11,8 +11,8 @@ Each use case shows a complete end-to-end run. Define variants, call `run_autoha
 **Solution:** AutoHarness watches which strategies succeed, finds the best one, and extracts reusable fix patterns.
 
 ```python
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.main import run_tracedge
 
 class CodingLLM:
     def chat(self, prompt: str) -> str:
@@ -51,7 +51,7 @@ variants = {
     ),
 }
 
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=CodingLLM(),
     seed=42,
@@ -79,8 +79,8 @@ Episodes saved:   10
 **Solution:** Define pipeline variants, let AutoHarness find the best one and extract the working pattern.
 
 ```python
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.main import run_tracedge
 
 class PipelineLLM:
     def chat(self, prompt: str) -> str:
@@ -120,7 +120,7 @@ variants = {
     ),
 }
 
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=PipelineLLM(),
     seed=42,
@@ -148,8 +148,8 @@ Episodes saved:   10
 **Solution:** Define strategy variants, let Thompson search find the winner, extract it as a skill.
 
 ```python
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.main import run_tracedge
 
 class GameLLM:
     def chat(self, prompt: str) -> str:
@@ -186,7 +186,7 @@ variants = {
     ),
 }
 
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=GameLLM(),
     seed=42,
@@ -214,8 +214,8 @@ Episodes saved:   20
 **Solution:** Let AutoHarness search over research workflow variants and extract the best pipeline.
 
 ```python
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.main import run_tracedge
 
 class ResearchLLM:
     def chat(self, prompt: str) -> str:
@@ -252,7 +252,7 @@ variants = {
     ),
 }
 
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=ResearchLLM(),
     seed=42,
@@ -280,8 +280,8 @@ Episodes saved:   10
 **Solution:** AutoHarness detects repeated tool-use patterns and compiles them into skills that skip the LLM entirely.
 
 ```python
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.main import run_tracedge
 
 class ToolLLM:
     def chat(self, prompt: str) -> str:
@@ -321,7 +321,7 @@ variants = {
     ),
 }
 
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=ToolLLM(),
     seed=42,
@@ -349,8 +349,8 @@ Episodes saved:   10
 **Solution:** Define your variants, let AutoHarness find the best architecture, and extract the winning design as a reusable skill.
 
 ```python
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.main import run_tracedge
 
 class MyLLM:
     def chat(self, prompt: str) -> str:
@@ -400,7 +400,7 @@ variants = {
     ),
 }
 
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=MyLLM(),
     seed=42,
@@ -425,7 +425,7 @@ Episodes saved:   15
 
 | Pattern | Code |
 |---------|------|
-| **Run the full loop** | `run_autoharness(variants, llm, seed)` |
+| **Run the full loop** | `run_tracedge(variants, llm, seed)` |
 | **Get best variant** | `result["best_variant"]` |
 | **Get skills** | `result["skills_extracted"]` |
 | **Get episodes** | `result["episodes_saved"]` |

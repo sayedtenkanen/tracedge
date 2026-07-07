@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from autoharness.ir.upir import UPIR, UPIRNode
-from autoharness.skills.pruner import SkillPruner
+from tracedge.ir.upir import UPIR, UPIRNode
+from tracedge.skills.pruner import SkillPruner
 
 
 def _skill_table() -> dict[str, UPIR]:

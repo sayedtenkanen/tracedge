@@ -5,7 +5,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from autoharness.memory.store import MemoryStore
+from tracedge.memory.store import MemoryStore
 
 
 class TestPersistentMemory:
@@ -107,7 +107,7 @@ class TestSkillPersistence:
 
     def test_save_and_load_skill(self) -> None:
         """Skill UPIR persisted and loaded correctly."""
-        from autoharness.ir.upir import UPIR, UPIRNode
+        from tracedge.ir.upir import UPIR, UPIRNode
 
         with tempfile.TemporaryDirectory() as tmpdir:
             store = MemoryStore(data_dir=Path(tmpdir))
@@ -132,7 +132,7 @@ class TestSkillPersistence:
 
     def test_load_skills_returns_all(self) -> None:
         """load_skills returns all stored skills as a dict."""
-        from autoharness.ir.upir import UPIR, UPIRNode
+        from tracedge.ir.upir import UPIR, UPIRNode
 
         with tempfile.TemporaryDirectory() as tmpdir:
             store = MemoryStore(data_dir=Path(tmpdir))
@@ -151,7 +151,7 @@ class TestSkillPersistence:
 
     def test_save_skill_overwrites(self) -> None:
         """Saving same skill_id overwrites previous."""
-        from autoharness.ir.upir import UPIR, UPIRNode
+        from tracedge.ir.upir import UPIR, UPIRNode
 
         with tempfile.TemporaryDirectory() as tmpdir:
             store = MemoryStore(data_dir=Path(tmpdir))

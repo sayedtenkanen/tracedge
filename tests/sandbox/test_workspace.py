@@ -9,7 +9,7 @@ class TestPathTraversal:
     """Paths outside the workspace root must be rejected."""
 
     def test_path_traversal_blocked(self, tmp_path: str) -> None:
-        from autoharness.sandbox.workspace import Workspace
+        from tracedge.sandbox.workspace import Workspace
 
         ws = Workspace(root=str(tmp_path))
         outside = os.path.join(str(tmp_path), "..", "etc", "passwd")
@@ -17,7 +17,7 @@ class TestPathTraversal:
             ws.validate_path(outside)
 
     def test_path_within_workspace_allowed(self, tmp_path: str) -> None:
-        from autoharness.sandbox.workspace import Workspace
+        from tracedge.sandbox.workspace import Workspace
 
         ws = Workspace(root=str(tmp_path))
         inside = os.path.join(str(tmp_path), "subdir", "file.txt")
@@ -29,7 +29,7 @@ class TestSymlinkEscape:
     """Symlinks that resolve outside the workspace must be blocked."""
 
     def test_symlink_escape_blocked(self, tmp_path: str) -> None:
-        from autoharness.sandbox.workspace import Workspace
+        from tracedge.sandbox.workspace import Workspace
 
         ws = Workspace(root=str(tmp_path))
         target = os.path.join(str(tmp_path), "target.txt")
@@ -45,7 +45,7 @@ class TestToolTimeout:
     """Tool execution must be bounded by a timeout."""
 
     def test_tool_timeout_enforced(self) -> None:
-        from autoharness.sandbox.workspace import Workspace
+        from tracedge.sandbox.workspace import Workspace
 
         ws = Workspace(root="/tmp/workspace")  # nosec B108
 

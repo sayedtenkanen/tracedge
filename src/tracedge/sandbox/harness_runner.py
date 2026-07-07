@@ -5,7 +5,7 @@ from __future__ import annotations
 import threading
 from typing import Any
 
-from autoharness.sandbox.guardrails import check_harness_code
+from tracedge.sandbox.guardrails import check_harness_code
 
 # Restricted builtins: only safe, common names are available.
 # Reflection builtins (getattr, hasattr, type, super, property) are

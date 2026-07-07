@@ -498,13 +498,13 @@ compile → execute → trace → score → attribute → rewrite → repeat
 ## Project Structure
 
 ```
-autoharness/
+tracedge/
 ├── pyproject.toml
 ├── .gitignore
 ├── BLUEPRINT.md
 ├── PLAN.md
 ├── src/
-│   └── autoharness/
+│   └── tracedge/
 │       ├── __init__.py
 │       ├── config.py                  # DEFAULT_CONFIG + Pydantic settings
 │       │
@@ -904,7 +904,7 @@ target-version = "py312"
 
 ### Coverage reporting
 ```bash
-pytest --cov=autoharness --cov-report=term-missing
+pytest --cov=tracedge --cov-report=term-missing
 ```
 
 ---

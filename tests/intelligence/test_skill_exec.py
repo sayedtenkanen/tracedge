@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from autoharness.ir.upir import UPIR, UPIRNode
-from autoharness.runtime.vm import VM
-from autoharness.skills.extractor import SkillExtractor
-from autoharness.trace.trace_ir import TraceEvent, TraceLog
+from tracedge.ir.upir import UPIR, UPIRNode
+from tracedge.runtime.vm import VM
+from tracedge.skills.extractor import SkillExtractor
+from tracedge.trace.trace_ir import TraceEvent, TraceLog
 
 
 def _make_upir_with_skill() -> UPIR:

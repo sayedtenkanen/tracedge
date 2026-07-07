@@ -1,6 +1,6 @@
 """Tests for value() function — unified scalar reward for bandit search."""
 
-from autoharness.reward.scorer import Reward, value
+from tracedge.reward.scorer import Reward, value
 
 
 class TestValueFunctionGameEnv:

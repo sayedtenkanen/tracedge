@@ -56,24 +56,24 @@ class TestConfigDefaults:
     """PLAN: config.py exists with centralized defaults."""
 
     def test_config_module_exists(self) -> None:
-        from autoharness import config
+        from tracedge import config
 
         assert config is not None
 
     def test_has_vm_max_steps(self) -> None:
-        from autoharness.config import VM_MAX_STEPS
+        from tracedge.config import VM_MAX_STEPS
 
         assert isinstance(VM_MAX_STEPS, int)
         assert VM_MAX_STEPS > 0
 
     def test_has_sandbox_max_runtime(self) -> None:
-        from autoharness.config import SANDBOX_MAX_RUNTIME_MS
+        from tracedge.config import SANDBOX_MAX_RUNTIME_MS
 
         assert isinstance(SANDBOX_MAX_RUNTIME_MS, int)
         assert SANDBOX_MAX_RUNTIME_MS > 0
 
     def test_has_thompson_defaults(self) -> None:
-        from autoharness.config import (
+        from tracedge.config import (
             THOMPSON_MAX_SEARCH_ITERATIONS,
             THOMPSON_MAX_TOTAL_FAILURES,
             THOMPSON_PRIOR_ALPHA,
@@ -86,7 +86,7 @@ class TestConfigDefaults:
         assert THOMPSON_PRIOR_BETA > 0
 
     def test_has_reward_weights(self) -> None:
-        from autoharness.config import REWARD_WEIGHTS_GAME, REWARD_WEIGHTS_TOOL
+        from tracedge.config import REWARD_WEIGHTS_GAME, REWARD_WEIGHTS_TOOL
 
         assert "task_success" in REWARD_WEIGHTS_TOOL
         assert "task_success" in REWARD_WEIGHTS_GAME

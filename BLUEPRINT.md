@@ -260,7 +260,7 @@ Runs every N episodes:
 ## 8. Outer Loop (`main.py`)
 
 ```python
-def run_autoharness(task_description, config):
+def run_tracedge(task_description, config):
     skill_registry = SkillRegistry()
     memory = MemoryStore()
 

@@ -7,7 +7,7 @@ class TestNoTryExcept:
     """Generated harness code must not contain try/except."""
 
     def test_harness_no_try_except_rejected(self) -> None:
-        from autoharness.sandbox.guardrails import check_harness_code
+        from tracedge.sandbox.guardrails import check_harness_code
 
         code = """
 x = 1
@@ -20,7 +20,7 @@ except:
             check_harness_code(code)
 
     def test_harness_no_except_rejected(self) -> None:
-        from autoharness.sandbox.guardrails import check_harness_code
+        from tracedge.sandbox.guardrails import check_harness_code
 
         code = """
 x = 1
@@ -37,7 +37,7 @@ class TestEffectBoundary:
     """Harness code must respect the declared effect boundary."""
 
     def test_harness_effect_boundary_no_step(self) -> None:
-        from autoharness.sandbox.guardrails import check_harness_code
+        from tracedge.sandbox.guardrails import check_harness_code
 
         code = """
 result = environment.step(state, action)
@@ -46,7 +46,7 @@ result = environment.step(state, action)
             check_harness_code(code, effects={"filesystem": False, "network": False})
 
     def test_harness_effect_boundary_no_state_mutation(self) -> None:
-        from autoharness.sandbox.guardrails import check_harness_code
+        from tracedge.sandbox.guardrails import check_harness_code
 
         code = """
 state["key"] = "new_value"
@@ -55,7 +55,7 @@ state["key"] = "new_value"
             check_harness_code(code, effects={"filesystem": False, "network": False})
 
     def test_harness_effect_boundary_no_filesystem(self) -> None:
-        from autoharness.sandbox.guardrails import check_harness_code
+        from tracedge.sandbox.guardrails import check_harness_code
 
         code = """
 with open("file.txt", "w") as f:
@@ -65,7 +65,7 @@ with open("file.txt", "w") as f:
             check_harness_code(code, effects={"filesystem": False, "network": False})
 
     def test_harness_effect_boundary_no_network(self) -> None:
-        from autoharness.sandbox.guardrails import check_harness_code
+        from tracedge.sandbox.guardrails import check_harness_code
 
         code = """
 import urllib.request

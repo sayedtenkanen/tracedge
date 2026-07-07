@@ -50,8 +50,8 @@ pytest tests/ -q
 ## Quick Start
 
 ```python
-from autoharness.ir.upir import UPIR, UPIRNode, Edge
-from autoharness.runtime.vm import VM
+from tracedge.ir.upir import UPIR, UPIRNode, Edge
+from tracedge.runtime.vm import VM
 
 # 1. Define a policy graph
 upir = UPIR(
@@ -85,11 +85,11 @@ for event in trace:
 
 ## Full Loop
 
-The `run_autoharness()` function wires together the entire pipeline — search, execution, scoring, skill extraction, and memory persistence — in a single call.
+The `run_tracedge()` function wires together the entire pipeline — search, execution, scoring, skill extraction, and memory persistence — in a single call.
 
 ```python
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.main import run_autoharness
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.main import run_tracedge
 
 # 1. Define strategy variants
 variants = {
@@ -121,7 +121,7 @@ class MyLLM:
         return "4"
 
 # 3. Run the full loop
-result = run_autoharness(
+result = run_tracedge(
     variants=variants,
     llm=MyLLM(),
     seed=42,
@@ -175,16 +175,16 @@ print(result["skills_extracted"])  # Reusable patterns compiled
 ### Using with real LLMs
 
 ```python
-from autoharness.intelligence.llm_client import OpenAIChatClient
+from tracedge.intelligence.llm_client import OpenAIChatClient
 
 llm = OpenAIChatClient(model="gpt-4o")
-result = run_autoharness(variants=variants, llm=llm, seed=42)
+result = run_tracedge(variants=variants, llm=llm, seed=42)
 ```
 
 ### Using with game environments
 
 ```python
-result = run_autoharness(
+result = run_tracedge(
     variants=game_variants,
     llm=my_llm,
     seed=42,
@@ -229,7 +229,7 @@ Reusable subprograms extracted from repeated successful patterns in traces.
 ### Basic graph
 
 ```python
-from autoharness.ir.upir import UPIR, UPIRNode, Edge
+from tracedge.ir.upir import UPIR, UPIRNode, Edge
 
 upir = UPIR(
     entry="start",
@@ -244,7 +244,7 @@ upir = UPIR(
 ### Branching graph
 
 ```python
-from autoharness.ir.upir import UPIR, UPIRNode, Edge
+from tracedge.ir.upir import UPIR, UPIRNode, Edge
 
 upir = UPIR(
     entry="start",
@@ -268,7 +268,7 @@ UPIR validates on construction:
 - Edge `from_` field accepts both `"from"` and `"from_"` (Pydantic alias)
 
 ```python
-from autoharness.ir.upir import UPIR, UPIRNode
+from tracedge.ir.upir import UPIR, UPIRNode
 
 # This raises ValidationError
 UPIR(
@@ -285,7 +285,7 @@ UPIR(
 ### Basic execution
 
 ```python
-from autoharness.runtime.vm import VM
+from tracedge.runtime.vm import VM
 
 vm = VM(upir=upir, llm=my_llm, seed=42)
 trace = vm.run()  # Returns list[dict]
@@ -294,7 +294,7 @@ trace = vm.run()  # Returns list[dict]
 ### With environment
 
 ```python
-from autoharness.environment.tool_env import ToolEnvironment
+from tracedge.environment.tool_env import ToolEnvironment
 
 env = ToolEnvironment(workspace="/tmp/my_workspace")
 vm = VM(upir=upir, llm=my_llm, seed=42, environment=env)
@@ -312,7 +312,7 @@ assert vm1.run() == vm2.run()  # Same seed = same trace
 ### Configuration
 
 ```python
-from autoharness.runtime.vm import VM
+from tracedge.runtime.vm import VM
 
 vm = VM(
     upir=upir,
@@ -346,7 +346,7 @@ Each trace event is a dict with:
 File I/O with sandboxed path validation:
 
 ```python
-from autoharness.environment.tool_env import ToolEnvironment
+from tracedge.environment.tool_env import ToolEnvironment
 
 env = ToolEnvironment(workspace="/tmp/sandbox")
 
@@ -361,7 +361,7 @@ env = ToolEnvironment(workspace="/tmp/sandbox")
 Tic-Tac-Toe with legal move enforcement:
 
 ```python
-from autoharness.environment.game_env import GameEnvironment
+from tracedge.environment.game_env import GameEnvironment
 
 env = GameEnvironment()
 env.reset()
@@ -374,7 +374,7 @@ env.step('4')        # Place mark at center
 Implement the `Environment` protocol:
 
 ```python
-from autoharness.environment.protocol import Environment
+from tracedge.environment.protocol import Environment
 
 class MyEnv:
     def reset(self) -> None:
@@ -401,7 +401,7 @@ Harnesses are sandboxed code snippets that run with restricted permissions.
 ### Defining a harness
 
 ```python
-from autoharness.ir.harness import Harness
+from tracedge.ir.harness import Harness
 
 harness = Harness(
     kind="policy",
@@ -452,12 +452,12 @@ Skills are reusable subprograms extracted from repeated patterns in execution tr
 ### Extracting skills
 
 ```python
-from autoharness.skills.extractor import SkillExtractor
+from tracedge.skills.extractor import SkillExtractor
 
 extractor = SkillExtractor(min_occurrences=2)
 
 # Build a trace log
-from autoharness.trace.trace_ir import TraceEvent, TraceLog
+from tracedge.trace.trace_ir import TraceEvent, TraceLog
 trace = TraceLog()
 for _ in range(3):
     trace.append(TraceEvent(node_id="n1", kind="observe"))
@@ -492,7 +492,7 @@ Nested state is namespaced: `nested.<node_id>` under the calling node.
 ### Pruning skills
 
 ```python
-from autoharness.skills.pruner import SkillPruner
+from tracedge.skills.pruner import SkillPruner
 
 pruner = SkillPruner(
     skill_table=extractor.skill_table,
@@ -512,7 +512,7 @@ Skills with `usage == 0` or `success_rate < min_success_rate` are removed.
 ### Scoring a trace
 
 ```python
-from autoharness.reward.scorer import score_trace, value
+from tracedge.reward.scorer import score_trace, value
 
 # Score a trace
 reward = score_trace(trace, env_kind="tool")  # or env_kind="game"
@@ -545,8 +545,8 @@ v = value(reward)  # float in [0, 1]
 Bayesian exploration of strategy space using Thompson sampling.
 
 ```python
-from autoharness.search.thompson import ThompsonTreeSearch, SearchConfig
-from autoharness.ir.harness import Harness
+from tracedge.search.thompson import ThompsonTreeSearch, SearchConfig
+from tracedge.ir.harness import Harness
 
 config = SearchConfig(
     max_search_iterations=50,
@@ -590,8 +590,8 @@ print(result.iterations)    # How many iterations it took
 LLM-guided improvement of harness code.
 
 ```python
-from autoharness.intelligence.critic import Critic
-from autoharness.intelligence.refiner import Refiner
+from tracedge.intelligence.critic import Critic
+from tracedge.intelligence.refiner import Refiner
 
 # Analyze failures (takes a list of traces)
 critic = Critic()
@@ -621,7 +621,7 @@ JSON-file-backed storage for episodes, skills, and global stats.
 
 ```python
 from pathlib import Path
-from autoharness.memory.store import MemoryStore
+from tracedge.memory.store import MemoryStore
 
 store = MemoryStore(data_dir=Path("./memory"))
 
@@ -662,7 +662,7 @@ Corrupted files return defaults instead of raising:
 
 ## Configuration
 
-Default values in `src/autoharness/config.py`:
+Default values in `src/tracedge/config.py`:
 
 ```python
 VM_MAX_STEPS = 100

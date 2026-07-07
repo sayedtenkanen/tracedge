@@ -5,7 +5,7 @@ class TestHarnessTimeout:
     """Harness code exceeding max_runtime_ms must be killed."""
 
     def test_harness_timeout_enforced(self) -> None:
-        from autoharness.sandbox.harness_runner import run_harness
+        from tracedge.sandbox.harness_runner import run_harness
 
         code = """
 import time
@@ -20,7 +20,7 @@ class TestHarnessPureComputation:
     """Pure computation harness code must execute successfully."""
 
     def test_harness_pure_computation_allowed(self) -> None:
-        from autoharness.sandbox.harness_runner import run_harness
+        from tracedge.sandbox.harness_runner import run_harness
 
         code = """
 x = 2 + 2
@@ -35,7 +35,7 @@ class TestHarnessException:
     """Harness exceptions must propagate for VM-level handling."""
 
     def test_harness_exception_propagates(self) -> None:
-        from autoharness.sandbox.harness_runner import run_harness
+        from tracedge.sandbox.harness_runner import run_harness
 
         code = """
 raise ValueError("test error")
@@ -49,7 +49,7 @@ class TestReflectionBuiltinsRemoved:
     """Regression: getattr/type/super/hasattr/property removed to block sandbox escape."""
 
     def test_reflection_builtins_removed_getattr(self) -> None:
-        from autoharness.sandbox.harness_runner import run_harness
+        from tracedge.sandbox.harness_runner import run_harness
 
         code = "x = getattr((), '__class__')"
         result = run_harness(code, max_runtime_ms=1000)
@@ -57,7 +57,7 @@ class TestReflectionBuiltinsRemoved:
         assert "NameError" in str(result["raised"])
 
     def test_reflection_builtins_removed_type(self) -> None:
-        from autoharness.sandbox.harness_runner import run_harness
+        from tracedge.sandbox.harness_runner import run_harness
 
         code = "t = type(1)"
         result = run_harness(code, max_runtime_ms=1000)

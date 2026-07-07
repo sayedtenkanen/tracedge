@@ -1,4 +1,4 @@
-from autoharness.runtime.step import StepResult
+from tracedge.runtime.step import StepResult
 
 
 class TestStepResultContract:

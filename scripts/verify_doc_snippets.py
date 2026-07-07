@@ -21,19 +21,19 @@ DOCS = [REPO / "README.md", REPO / "USE_CASES.md", REPO / "USER_MANUAL.md"]
 
 # Known importable names for quick smoke test
 SAFE_IMPORTS = {
-    "autoharness.ir.upir": ["UPIR", "UPIRNode", "Edge"],
-    "autoharness.runtime.vm": ["VM"],
-    "autoharness.environment.tool_env": ["ToolEnvironment"],
-    "autoharness.environment.game_env": ["GameEnvironment"],
-    "autoharness.reward.scorer": ["score_trace", "value", "Reward"],
-    "autoharness.skills.extractor": ["SkillExtractor", "Pattern"],
-    "autoharness.skills.pruner": ["SkillPruner"],
-    "autoharness.search.thompson": ["ThompsonTreeSearch", "SearchConfig", "SearchResult"],
-    "autoharness.intelligence.critic": ["Critic", "CriticOutput"],
-    "autoharness.intelligence.refiner": ["Refiner"],
-    "autoharness.trace.trace_ir": ["TraceEvent", "TraceLog"],
-    "autoharness.memory.store": ["MemoryStore"],
-    "autoharness.ir.harness": ["Harness", "HarnessResult"],
+    "tracedge.ir.upir": ["UPIR", "UPIRNode", "Edge"],
+    "tracedge.runtime.vm": ["VM"],
+    "tracedge.environment.tool_env": ["ToolEnvironment"],
+    "tracedge.environment.game_env": ["GameEnvironment"],
+    "tracedge.reward.scorer": ["score_trace", "value", "Reward"],
+    "tracedge.skills.extractor": ["SkillExtractor", "Pattern"],
+    "tracedge.skills.pruner": ["SkillPruner"],
+    "tracedge.search.thompson": ["ThompsonTreeSearch", "SearchConfig", "SearchResult"],
+    "tracedge.intelligence.critic": ["Critic", "CriticOutput"],
+    "tracedge.intelligence.refiner": ["Refiner"],
+    "tracedge.trace.trace_ir": ["TraceEvent", "TraceLog"],
+    "tracedge.memory.store": ["MemoryStore"],
+    "tracedge.ir.harness": ["Harness", "HarnessResult"],
 }
 
 

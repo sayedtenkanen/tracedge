@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from autoharness.ir.harness import Harness
+    from tracedge.ir.harness import Harness
 
 
 def thompson_sample(branches: list[Branch], rng: random.Random) -> Branch:

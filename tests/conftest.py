@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from autoharness.ir.upir import UPIR, Edge
+from tracedge.ir.upir import UPIR, Edge
 
 
 class FakeLLM:

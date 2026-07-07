@@ -1,4 +1,4 @@
-from autoharness.runtime.seed import SeedStream
+from tracedge.runtime.seed import SeedStream
 
 
 class TestSeedThreading:

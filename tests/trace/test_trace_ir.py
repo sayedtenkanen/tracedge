@@ -1,7 +1,7 @@
 """Tests for Trace IR — execution observability with structured trace events."""
 
-from autoharness.ir.upir import UPIR, Edge
-from autoharness.runtime.vm import VM
+from tracedge.ir.upir import UPIR, Edge
+from tracedge.runtime.vm import VM
 
 
 class FakeLLM:
@@ -18,7 +18,7 @@ class TestTraceEventEmitted:
     """Every node execution produces a trace_event."""
 
     def test_trace_event_emitted_per_node(self) -> None:
-        from autoharness.trace.trace_ir import TraceEvent
+        from tracedge.trace.trace_ir import TraceEvent
 
         upir = UPIR(
             entry="n1",
@@ -40,7 +40,7 @@ class TestTraceEventFields:
     """trace_event has node_id, inputs, outputs, cost."""
 
     def test_trace_event_fields(self) -> None:
-        from autoharness.trace.trace_ir import TraceEvent
+        from tracedge.trace.trace_ir import TraceEvent
 
         upir = UPIR(
             entry="n1",
@@ -58,8 +58,8 @@ class TestTraceLegalFlag:
     """legal field: True/False for GameEnvironment, None for ToolEnvironment."""
 
     def test_trace_legal_flag_none_tool_env(self) -> None:
-        from autoharness.environment.tool_env import ToolEnvironment
-        from autoharness.trace.trace_ir import TraceEvent
+        from tracedge.environment.tool_env import ToolEnvironment
+        from tracedge.trace.trace_ir import TraceEvent
 
         env = ToolEnvironment()
         upir = UPIR(
@@ -72,8 +72,8 @@ class TestTraceLegalFlag:
         assert te.legal is None
 
     def test_trace_legal_flag_game_env(self) -> None:
-        from autoharness.environment.game_env import GameEnvironment
-        from autoharness.trace.trace_ir import TraceEvent
+        from tracedge.environment.game_env import GameEnvironment
+        from tracedge.trace.trace_ir import TraceEvent
 
         env = GameEnvironment()
         upir = UPIR(
@@ -90,7 +90,7 @@ class TestHarnessCallTrace:
     """HarnessCall nodes emit verdict, raised, cost in trace_event."""
 
     def test_trace_harness_result_fields(self) -> None:
-        from autoharness.trace.trace_ir import TraceEvent
+        from tracedge.trace.trace_ir import TraceEvent
 
         upir = UPIR(
             entry="n1",
@@ -155,7 +155,7 @@ class TestCostAccumulated:
     """trace_event.cost values are consistent."""
 
     def test_trace_cost_accumulated(self) -> None:
-        from autoharness.trace.trace_ir import TraceEvent
+        from tracedge.trace.trace_ir import TraceEvent
 
         upir = UPIR(
             entry="n1",

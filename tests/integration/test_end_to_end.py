@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from autoharness.intelligence.critic import Critic
-from autoharness.ir.harness import Harness
-from autoharness.ir.upir import UPIR
-from autoharness.reward.scorer import score_trace, value
-from autoharness.runtime.vm import VM
-from autoharness.search.thompson import Branch, ThompsonTreeSearch
+from tracedge.intelligence.critic import Critic
+from tracedge.ir.harness import Harness
+from tracedge.ir.upir import UPIR
+from tracedge.reward.scorer import score_trace, value
+from tracedge.runtime.vm import VM
+from tracedge.search.thompson import Branch, ThompsonTreeSearch
 
 
 class FakeLLM:

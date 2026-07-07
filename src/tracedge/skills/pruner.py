@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from autoharness.ir.upir import UPIR
+    from tracedge.ir.upir import UPIR
 
 
 class SkillPruner:

@@ -1,4 +1,4 @@
-from autoharness.ir.nodes import (
+from tracedge.ir.nodes import (
     Act,
     Branch,
     HarnessCall,
@@ -121,7 +121,7 @@ class TestAllNodeTypes:
             assert getattr(n, "kind", None) is not None
 
     def test_invalid_kind_rejected(self) -> None:
-        from autoharness.ir.upir import UPIRNode
+        from tracedge.ir.upir import UPIRNode
 
         n = UPIRNode(node_id="x", kind="not_a_real_kind")
         assert n.kind == "not_a_real_kind"

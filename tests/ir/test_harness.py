@@ -7,7 +7,7 @@ class TestHarness:
     """Harness IR model: kind, code, schemas, effects, guard_policy."""
 
     def test_harness_construction(self) -> None:
-        from autoharness.ir.harness import Harness
+        from tracedge.ir.harness import Harness
 
         h = Harness(
             kind="action_verifier",
@@ -18,7 +18,7 @@ class TestHarness:
         assert h.version == 1
 
     def test_harness_kind_options(self) -> None:
-        from autoharness.ir.harness import Harness
+        from tracedge.ir.harness import Harness
 
         for kind in ("action_filter", "action_verifier", "policy"):
             h = Harness(
@@ -29,7 +29,7 @@ class TestHarness:
             assert h.kind == kind
 
     def test_harness_invalid_kind_rejected(self) -> None:
-        from autoharness.ir.harness import Harness
+        from tracedge.ir.harness import Harness
 
         with pytest.raises(ValueError):
             Harness(
@@ -39,7 +39,7 @@ class TestHarness:
             )
 
     def test_harness_guard_policy_defaults(self) -> None:
-        from autoharness.ir.harness import Harness
+        from tracedge.ir.harness import Harness
 
         h = Harness(
             kind="policy",
@@ -54,7 +54,7 @@ class TestHarnessResult:
     """HarnessResult: verdict, raised, cost."""
 
     def test_harness_result_construction(self) -> None:
-        from autoharness.ir.harness import HarnessResult
+        from tracedge.ir.harness import HarnessResult
 
         r = HarnessResult(verdict=True, raised=None, cost=0.0)
         assert r.verdict is True
@@ -62,7 +62,7 @@ class TestHarnessResult:
         assert r.cost == 0.0
 
     def test_harness_result_with_exception(self) -> None:
-        from autoharness.ir.harness import HarnessResult
+        from tracedge.ir.harness import HarnessResult
 
         r = HarnessResult(verdict=False, raised="ValueError", cost=0.1)
         assert r.raised == "ValueError"

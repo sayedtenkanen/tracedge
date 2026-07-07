@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from autoharness.ir.upir import UPIR, UPIRNode
+from tracedge.ir.upir import UPIR, UPIRNode
 
 
 def _subsequences(seq: tuple[str, ...], length: int) -> set[tuple[str, ...]]:

@@ -1,6 +1,6 @@
 """Validate UPIR construction via Pydantic model validation."""
 
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
 
 
 class TestEdgeConsistency:

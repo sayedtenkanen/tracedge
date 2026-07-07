@@ -13,8 +13,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from autoharness.main import run_autoharness
-from autoharness.memory.store import MemoryStore
+from tracedge.main import run_tracedge
+from tracedge.memory.store import MemoryStore
 
 
 def resolve_llm(task_llm: Any, override: Any | None = None) -> Any:
@@ -126,7 +126,7 @@ def _run_baseline_phase(
     Persists each task's predefined training_skills into MemoryStore so
     the reuse variant can reference them via skill_call nodes.
 
-    Returns dict mapping task_name → last run_autoharness result.
+    Returns dict mapping task_name → last run_tracedge result.
     """
     results: dict[str, dict[str, Any]] = {}
     for task in tasks:
@@ -140,7 +140,7 @@ def _run_baseline_phase(
         llm = resolve_llm(task.llm, llm_override)
         last_result: dict[str, Any] = {}
         for seed in task.seeds:
-            last_result = run_autoharness(
+            last_result = run_tracedge(
                 variants=task.baseline_variants,
                 llm=llm,
                 seed=seed,
@@ -180,7 +180,7 @@ def _run_test_phase(
         for seed in task.seeds:
             # Use the training data_dir so skills are visible
             task_dir = str(Path(data_dir) / "training" / task.name)
-            result = run_autoharness(
+            result = run_tracedge(
                 variants=variants,
                 llm=llm,
                 seed=seed,

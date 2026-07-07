@@ -1,10 +1,10 @@
-"""Integration test for autoharness.main — end-to-end loop with fake LLM."""
+"""Integration test for tracedge.main — end-to-end loop with fake LLM."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from autoharness.main import run_autoharness
+from tracedge.main import run_tracedge
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -17,9 +17,9 @@ class FakeLLM:
         return "ok"
 
 
-def test_run_autoharness_end_to_end(tmp_path: Path) -> None:
+def test_run_tracedge_end_to_end(tmp_path: Path) -> None:
     """Full loop: VM → trace → score → Thompson search → skill extraction → persist."""
-    from autoharness.ir.upir import UPIR, UPIRNode
+    from tracedge.ir.upir import UPIR, UPIRNode
 
     variants = {
         "good": UPIR(
@@ -36,7 +36,7 @@ def test_run_autoharness_end_to_end(tmp_path: Path) -> None:
         ),
     }
 
-    result = run_autoharness(
+    result = run_tracedge(
         variants=variants,
         llm=FakeLLM(),
         seed=42,
@@ -49,9 +49,9 @@ def test_run_autoharness_end_to_end(tmp_path: Path) -> None:
     assert result["episodes_saved"] >= 0
 
 
-def test_run_autoharness_empty_variants(tmp_path: Path) -> None:
+def test_run_tracedge_empty_variants(tmp_path: Path) -> None:
     """Empty variants returns no_branches status."""
-    result = run_autoharness(
+    result = run_tracedge(
         variants={},
         llm=FakeLLM(),
         seed=42,
@@ -68,7 +68,7 @@ def test_convergence_good_wins(tmp_path: Path) -> None:
     The 'bad' variant has a harness that raises an error (verdict='error', task_success=0.0).
     Thompson search should converge on 'good' across multiple seeds.
     """
-    from autoharness.ir.upir import UPIR, UPIRNode
+    from tracedge.ir.upir import UPIR, UPIRNode
 
     good = UPIR(
         entry="h1",
@@ -85,7 +85,7 @@ def test_convergence_good_wins(tmp_path: Path) -> None:
 
     wins = 0
     for seed in [42, 43, 44]:
-        result = run_autoharness(
+        result = run_tracedge(
             variants={"good": good, "bad": bad},
             llm=FakeLLM(),
             seed=seed,
@@ -108,7 +108,7 @@ def test_cli_demo_mode(tmp_path: Path) -> None:
     import sys
 
     result = subprocess.run(
-        [sys.executable, "-m", "autoharness.main", "--demo"],
+        [sys.executable, "-m", "tracedge.main", "--demo"],
         capture_output=True,
         text=True,
         timeout=30,
@@ -119,12 +119,12 @@ def test_cli_demo_mode(tmp_path: Path) -> None:
 
 def test_reuse_skills_loads_persisted_skills(tmp_path: Path) -> None:
     """reuse_skills=True loads persisted skills into skill_table."""
-    from autoharness.ir.upir import UPIR, UPIRNode
-    from autoharness.memory.store import MemoryStore
+    from tracedge.ir.upir import UPIR, UPIRNode
+    from tracedge.memory.store import MemoryStore
 
     data_dir = str(tmp_path / "shared")
 
-    # Pre-persist a skill in the same data_dir used by run_autoharness
+    # Pre-persist a skill in the same data_dir used by run_tracedge
     store = MemoryStore(data_dir=tmp_path / "shared")
     skill = UPIR(
         entry="n1",
@@ -143,7 +143,7 @@ def test_reuse_skills_loads_persisted_skills(tmp_path: Path) -> None:
         harness_table={"h": "result = True"},
     )
 
-    result = run_autoharness(
+    result = run_tracedge(
         variants={"good": good},
         llm=FakeLLM(),
         seed=42,
@@ -163,7 +163,7 @@ def test_llm_free_replay_saves_llm_calls(tmp_path: Path) -> None:
     - llm_calls == 0 (no think/branch events in the trace)
     - llm_calls_saved >= 1 (skill_call to a deterministic skill)
     """
-    from autoharness.ir.upir import UPIR, UPIRNode
+    from tracedge.ir.upir import UPIR, UPIRNode
 
     # A skill with only act nodes (deterministic) — no think/branch
     skill = UPIR(
@@ -189,7 +189,7 @@ def test_llm_free_replay_saves_llm_calls(tmp_path: Path) -> None:
         skill_table={"skill_1": skill},
     )
 
-    result = run_autoharness(
+    result = run_tracedge(
         variants={"good": good},
         llm=FakeLLM(),
         seed=42,
@@ -203,7 +203,7 @@ def test_llm_free_replay_saves_llm_calls(tmp_path: Path) -> None:
 
 def test_result_dict_per_variant_stats(tmp_path: Path) -> None:
     """Result dict includes per_variant_stats with posterior means."""
-    from autoharness.ir.upir import UPIR, UPIRNode
+    from tracedge.ir.upir import UPIR, UPIRNode
 
     good = UPIR(
         entry="h1",
@@ -218,7 +218,7 @@ def test_result_dict_per_variant_stats(tmp_path: Path) -> None:
         harness_table={"h": "raise ValueError('fail')"},
     )
 
-    result = run_autoharness(
+    result = run_tracedge(
         variants={"good": good, "bad": bad},
         llm=FakeLLM(),
         seed=42,

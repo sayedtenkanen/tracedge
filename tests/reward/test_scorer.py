@@ -1,6 +1,6 @@
 """Tests for Reward scorer — trace → reward vector."""
 
-from autoharness.reward.scorer import Reward, score_trace
+from tracedge.reward.scorer import Reward, score_trace
 
 
 class TestRewardVectorSchema:

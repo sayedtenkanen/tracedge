@@ -12,9 +12,9 @@ from __future__ import annotations
 import os
 import sys
 
-from autoharness.ir.upir import UPIR, Edge, UPIRNode
-from autoharness.reward.scorer import score_trace, value
-from autoharness.runtime.vm import VM
+from tracedge.ir.upir import UPIR, Edge, UPIRNode
+from tracedge.reward.scorer import score_trace, value
+from tracedge.runtime.vm import VM
 
 
 def main() -> None:
@@ -23,7 +23,7 @@ def main() -> None:
         print("  export OPENAI_API_KEY='sk-...'")
         sys.exit(1)
 
-    from autoharness.intelligence.llm_client import OpenAIChatClient
+    from tracedge.intelligence.llm_client import OpenAIChatClient
 
     upir = UPIR(
         entry="observe",
