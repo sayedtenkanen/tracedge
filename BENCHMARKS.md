@@ -1,6 +1,6 @@
 # Benchmarks
 
-*Generated: 2026-07-07 19:29 UTC*
+*Generated: 2026-07-07 21:58 UTC*
 
 **Headline:** Skill reuse reduces LLM calls at equal or better success rate.
 
@@ -13,8 +13,8 @@
 | Metric | Baseline (no reuse) | With Skill Reuse |
 |---|---|---|
 | Avg success rate | 75.0% | 75.0% |
-| Mean LLM calls | 13.5 | 0.0 |
-| Mean LLM calls saved | — | 6.0 |
+| Mean LLM calls | 11.0 | 0.0 |
+| Mean LLM calls saved | — | 11.0 |
 | **LLM reduction** | — | **100.0%** |
 | Tasks | 20 | 20 |
 
@@ -22,16 +22,16 @@
 
 | Task | Success (baseline) | Success (reuse) | LLM calls (baseline) | LLM calls (reuse) | Saved |
 |---|---|---|---|---|---|
-| double | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| add_one | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| factorial | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| is_even | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| reverse_string | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| sum_list | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| max_of_three | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| abs_value | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| count_vowels | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| fizzbuzz_check | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
+| double | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| add_one | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| factorial | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| is_even | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| reverse_string | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| sum_list | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| max_of_three | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| abs_value | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| count_vowels | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| fizzbuzz_check | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
 
 **Code Gen summary:** LLM reduction = **100.0%**, success rate: 100.0% → 100.0%
 
@@ -39,11 +39,11 @@
 
 | Task | Success (baseline) | Success (reuse) | LLM calls (baseline) | LLM calls (reuse) | Saved |
 |---|---|---|---|---|---|
-| tic_tac_toe_game_1 | 0.0% | 0.0% | 30.0 | 0.0 | 15.0 |
-| tic_tac_toe_game_2 | 0.0% | 0.0% | 30.0 | 0.0 | 15.0 |
-| tic_tac_toe_game_3 | 0.0% | 0.0% | 30.0 | 0.0 | 15.0 |
-| tic_tac_toe_game_4 | 0.0% | 0.0% | 30.0 | 0.0 | 15.0 |
-| tic_tac_toe_game_5 | 0.0% | 0.0% | 30.0 | 0.0 | 15.0 |
+| tic_tac_toe_game_1 | 0.0% | 0.0% | 20.0 | 0.0 | 20.0 |
+| tic_tac_toe_game_2 | 0.0% | 0.0% | 20.0 | 0.0 | 20.0 |
+| tic_tac_toe_game_3 | 0.0% | 0.0% | 20.0 | 0.0 | 20.0 |
+| tic_tac_toe_game_4 | 0.0% | 0.0% | 20.0 | 0.0 | 20.0 |
+| tic_tac_toe_game_5 | 0.0% | 0.0% | 20.0 | 0.0 | 20.0 |
 
 **Game summary:** LLM reduction = **100.0%**, success rate: 0.0% → 0.0%
 
@@ -51,11 +51,11 @@
 
 | Task | Success (baseline) | Success (reuse) | LLM calls (baseline) | LLM calls (reuse) | Saved |
 |---|---|---|---|---|---|
-| write_hello | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| write_and_read | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| file_operations | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| nested_write | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
-| multi_step_tool | 100.0% | 100.0% | 8.0 | 0.0 | 3.0 |
+| write_hello | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| write_and_read | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| file_operations | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| nested_write | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
+| multi_step_tool | 100.0% | 100.0% | 8.0 | 0.0 | 8.0 |
 
 **Tool summary:** LLM reduction = **100.0%**, success rate: 100.0% → 100.0%
 
@@ -75,9 +75,6 @@ python -m benchmarks --categories game
 
 # Fewer seeds for faster iteration
 python -m benchmarks --seeds 42 43 44
-
-# With real LLM (requires OPENAI_API_KEY)
-OPENAI_API_KEY=sk-... python -m benchmarks --llm openai
 ```
 
 ## Methodology

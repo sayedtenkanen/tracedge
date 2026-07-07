@@ -80,13 +80,14 @@ def generate_report(suite: BenchmarkSuite, output_path: str = "BENCHMARKS.md") -
         lines.append("|---|---|---|---|---|---|")
 
         for b, r in zip(baseline, reuse, strict=True):
+            saved = b.mean_llm_calls - r.mean_llm_calls
             lines.append(
                 f"| {b.task_name} "
                 f"| {_fmt(b.success_rate * 100)}% "
                 f"| {_fmt(r.success_rate * 100)}% "
                 f"| {_fmt(b.mean_llm_calls)} "
                 f"| {_fmt(r.mean_llm_calls)} "
-                f"| {_fmt(r.mean_llm_calls_saved)} |"
+                f"| {_fmt(saved)} |"
             )
 
         lines.append("")
