@@ -42,6 +42,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="Max search iterations per task (default: 15)",
     )
     parser.add_argument(
+        "--llm",
+        choices=["fake", "ollama"],
+        default="fake",
+        help="LLM backend: fake (scripted, default) or ollama (local Ollama)",
+    )
+    parser.add_argument(
         "--output",
         default="BENCHMARKS.md",
         help="Output path for the report (default: BENCHMARKS.md)",
@@ -69,9 +75,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"  [{t.category}] {t.name} ({len(t.seeds)} seeds)")
         return 0
 
+    llm_override = None
+    if args.llm == "ollama":
+        from autoharness.intelligence.llm_client import OllamaChatClient
+
+        llm_override = OllamaChatClient()
+        print(f"Using local Ollama ({llm_override.model})")
+
     print(f"Running {len(tasks)} tasks ({len(tasks) * 2} runs: no_reuse + reuse)...")
     with tempfile.TemporaryDirectory(prefix="autobench_") as tmpdir:
-        suite = run_benchmark(tasks, data_dir_prefix=tmpdir, max_iterations=args.max_iterations)
+        suite = run_benchmark(
+            tasks,
+            data_dir_prefix=tmpdir,
+            max_iterations=args.max_iterations,
+            llm_override=llm_override,
+        )
 
     report = generate_report(suite, output_path=args.output)
     print(f"\nReport written to {args.output}")
