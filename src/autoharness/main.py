@@ -17,7 +17,13 @@ from autoharness.reward.scorer import score_trace, value
 from autoharness.runtime.vm import VM
 from autoharness.search.thompson import SearchConfig, ThompsonTreeSearch
 from autoharness.skills.extractor import SkillExtractor
-from autoharness.trace.trace_ir import TraceEvent, TraceLog
+
+
+def _has_llm_nodes(upir: UPIR) -> bool:
+    """True if the UPIR has any think or branch nodes that call the LLM."""
+    return any(
+        n.kind in ("think", "branch") for n in upir.nodes.values() if isinstance(n, UPIRNode)
+    )
 
 
 def run_autoharness(
@@ -29,6 +35,7 @@ def run_autoharness(
     env_kind: str = "tool",
     data_dir: str | None = None,
     env_factory: Callable[[int], Any] | None = None,
+    reuse_skills: bool = False,
 ) -> dict[str, Any]:
     """Run the full AutoHarness loop: execute → score → search → extract → persist.
 
@@ -42,9 +49,12 @@ def run_autoharness(
         data_dir: Directory for MemoryStore. Uses temp dir if None.
         env_factory: Callable taking a seed int and returning a fresh Environment.
                      If None, VM runs without an environment.
+        reuse_skills: If True, load persisted skills from MemoryStore into
+                      each variant's skill_table before execution.
 
     Returns:
-        Dict with keys: status, best_variant, episodes_saved, skills_extracted.
+        Dict with keys: status, best_variant, episodes_saved, skills_extracted,
+        skills_loaded.
     """
     if not variants:
         return {
@@ -52,6 +62,10 @@ def run_autoharness(
             "best_variant": None,
             "episodes_saved": 0,
             "skills_extracted": 0,
+            "skills_loaded": 0,
+            "llm_calls": 0,
+            "llm_calls_saved": 0,
+            "per_variant_stats": {},
         }
 
     # 1. Set up Thompson search over harness variants
@@ -67,10 +81,29 @@ def run_autoharness(
     for name, _upir in variant_list:
         search.add_branch(Harness(kind="policy", code=name))
 
+    # 1b. Load persisted skills if reuse_skills is enabled
+    store_dir = Path(data_dir) if data_dir else Path(tempfile.mkdtemp())
+    store = MemoryStore(data_dir=store_dir)
+    skills_loaded = 0
+
+    if reuse_skills:
+        stored_skills = store.load_skills()
+        if stored_skills:
+            for _name, upir in variant_list:
+                upir.skill_table.update(stored_skills)
+            skills_loaded = len(stored_skills)
+
     # 2. Define rollout function
     all_traces: list[list[dict[str, Any]]] = []
+    all_rewards: list[float] = []
+    llm_calls = 0
+    llm_calls_saved = 0
+    # Track per-variant stats: variant_name -> list of rollout values
+    variant_values: dict[str, list[float]] = {name: [] for name in variants}
+    variant_trials: dict[str, int] = {name: 0 for name in variants}
 
     def rollout(harness: Harness, roll_seed: int) -> tuple[float, bool]:
+        nonlocal llm_calls, llm_calls_saved
         variant_name = harness.code
         upir = variants[variant_name]
         env = env_factory(roll_seed) if env_factory is not None else None
@@ -79,52 +112,72 @@ def run_autoharness(
         all_traces.append(trace)
         r = score_trace(trace, env_kind=env_kind)
         v = value(r, env_kind=env_kind)
+        all_rewards.append(v)
         failed = any(e.get("verdict") == "error" for e in trace)
+        # Count actual LLM calls from think/branch events in the trace
+        for event in trace:
+            if event.get("kind") in ("think", "branch"):
+                llm_calls += 1
+        # Count LLM savings: skill_calls to deterministic skills (no think/branch)
+        for event in trace:
+            if event.get("kind") == "skill_call":
+                skill_id = event.get("skill_id", "")
+                skill_upir = upir.skill_table.get(skill_id)
+                if skill_upir is not None and not _has_llm_nodes(skill_upir):
+                    llm_calls_saved += 1
+        variant_values[variant_name].append(v)
+        variant_trials[variant_name] += 1
         return v, failed
 
     # 3. Run Thompson search
     result = search.run(rollout_fn=rollout, rng_seed=seed)
 
-    # 4. Extract skills from the best variant's traces
+    # 4. Extract skills from successful episodes only
     skills_extracted = 0
-    if all_traces:
-        trace_log = TraceLog()
-        for trace in all_traces:
-            for event in trace:
-                trace_log.append(
-                    TraceEvent(
-                        node_id=event.get("node_id", ""),
-                        kind=event.get("kind", ""),
-                    )
-                )
-
+    if all_traces and result.best_branch:
+        best_upir = variants[result.best_branch.harness.code]
         extractor = SkillExtractor(min_occurrences=2)
-        patterns = extractor.detect_patterns(trace_log)
-        if patterns and result.best_branch:
-            best_upir = variants[result.best_branch.harness.code]
-            for pattern in patterns:
-                skill = extractor.extract_skill(pattern, best_upir)
-                if skill is not None:
-                    skills_extracted += 1
+        episodes = list(zip(all_traces, all_rewards, strict=True))
+        patterns = extractor.extract_from_episodes(episodes, success_threshold=0.0)
+        for pattern in patterns:
+            skill_node = extractor.extract_skill(pattern, best_upir)
+            if skill_node is not None:
+                skills_extracted += 1
 
-    # 5. Persist to memory
+        # Persist all extracted skill UPIRs for reuse
+        for skill_id, skill_upir in extractor.skill_table.items():
+            store.save_skill(skill_id, skill_upir)
+
+    # 5. Persist episodes to memory
     episodes_saved = 0
-    store_dir = Path(data_dir) if data_dir else Path(tempfile.mkdtemp())
-    store = MemoryStore(data_dir=store_dir)
-
-    for i, trace in enumerate(all_traces):
-        r = score_trace(trace, env_kind=env_kind)
-        store.save_episode(f"run_{i}", trace, reward=value(r, env_kind=env_kind))
+    for i, (trace, reward) in enumerate(zip(all_traces, all_rewards, strict=True)):
+        store.save_episode(f"run_{i}", trace, reward=reward)
         episodes_saved += 1
 
     best_name = result.best_branch.harness.code if result.best_branch else None
+
+    # 6. Build per-variant stats from search branches
+    per_variant_stats: dict[str, dict[str, Any]] = {}
+    for branch in search.branches:
+        name = branch.harness.code
+        per_variant_stats[name] = {
+            "posterior_mean": branch.mean,
+            "trials": branch.update_count,
+            "alpha": branch.alpha,
+            "beta": branch.beta,
+            "rollout_values": variant_values.get(name, []),
+        }
 
     return {
         "status": result.status,
         "best_variant": best_name,
         "episodes_saved": episodes_saved,
         "skills_extracted": skills_extracted,
+        "skills_loaded": skills_loaded,
         "iterations": result.iterations,
+        "llm_calls": llm_calls,
+        "llm_calls_saved": llm_calls_saved,
+        "per_variant_stats": per_variant_stats,
     }
 
 
