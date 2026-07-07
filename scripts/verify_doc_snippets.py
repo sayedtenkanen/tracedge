@@ -198,8 +198,10 @@ def run_snippet_executable(block: str, line_start: int, doc_name: str) -> list[s
     """Run a snippet as a real Python subprocess (full import access)."""
     errors = []
     wrapped = textwrap.dedent(block)
+    tmp_path: Path | None = None
     try:
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+            tmp_path = Path(f.name)
             f.write(wrapped)
             f.flush()
             result = subprocess.run(  # nosec B404,B603 - doc snippet execution
@@ -217,7 +219,8 @@ def run_snippet_executable(block: str, line_start: int, doc_name: str) -> list[s
     except subprocess.TimeoutExpired:
         errors.append(f"  {doc_name}:{line_start}: exec timed out (>15s)")
     finally:
-        Path(f.name).unlink(missing_ok=True)
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
     return errors
 
 

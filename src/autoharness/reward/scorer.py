@@ -66,7 +66,7 @@ def _score_success(trace: list[dict[str, Any]]) -> float:
 
         # Signal 3: tool-level success flag
         info = env_result.get("info")
-        if info and info.get("success"):
+        if isinstance(info, dict) and info.get("success"):
             return 1.0
 
     return 0.0
