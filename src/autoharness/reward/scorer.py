@@ -55,9 +55,13 @@ def _score_success(trace: list[dict[str, Any]]) -> float:
     Acceptable for MVP because efficiency and safety still penalize waste.
     """
     for event in trace:
-        # Signal 1: harness_call verdict
+        # Signal 1: harness_call verdict (check nested traces from skill_call nodes)
         if event.get("kind") == "harness_call" and event.get("verdict") == "ok":
             return 1.0
+        if event.get("kind") == "skill_call":
+            for nested in event.get("nested_trace", []):
+                if nested.get("kind") == "harness_call" and nested.get("verdict") == "ok":
+                    return 1.0
 
         # Signal 2: environment terminal success (game won, task complete)
         env_result = event.get("env_result", {})

@@ -292,7 +292,13 @@ class VM:
                 "kind": "skill_call",
                 "skill_id": skill_id,
                 "nested_trace": [
-                    {"node_id": e.get("node_id"), "kind": e.get("kind")} for e in nested_trace
+                    {
+                        "node_id": e.get("node_id"),
+                        "kind": e.get("kind"),
+                        **({"verdict": e["verdict"]} if "verdict" in e else {}),
+                        **({"raised": e["raised"]} if "raised" in e else {}),
+                    }
+                    for e in nested_trace
                 ],
                 "nested_steps": len(nested_trace),
             },
