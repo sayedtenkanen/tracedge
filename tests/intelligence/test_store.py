@@ -100,3 +100,85 @@ class TestPersistentMemory:
             path.write_text("corrupt!")
             stats = store.load_global_stats()
             assert stats == {"total_runs": 0, "success_rate": 0.0}
+
+
+class TestSkillPersistence:
+    """Phase 2 — save/load full skill UPIR objects."""
+
+    def test_save_and_load_skill(self) -> None:
+        """Skill UPIR persisted and loaded correctly."""
+        from autoharness.ir.upir import UPIR, UPIRNode
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            skill = UPIR(
+                entry="n1",
+                nodes={"n1": UPIRNode(kind="act", node_id="n1", tool="write")},
+                edges=[],
+                harness_table={},
+                skill_table={},
+            )
+            store.save_skill("skill_1", skill)
+            loaded = store.load_skill("skill_1")
+            assert loaded is not None
+            assert loaded.entry == "n1"
+            assert "n1" in loaded.nodes
+
+    def test_load_missing_skill_returns_none(self) -> None:
+        """Missing skill loads as None."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            assert store.load_skill("nonexistent") is None
+
+    def test_load_skills_returns_all(self) -> None:
+        """load_skills returns all stored skills as a dict."""
+        from autoharness.ir.upir import UPIR, UPIRNode
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            for i in range(3):
+                skill = UPIR(
+                    entry="n1",
+                    nodes={"n1": UPIRNode(kind="act", node_id="n1")},
+                    edges=[],
+                    harness_table={},
+                    skill_table={},
+                )
+                store.save_skill(f"skill_{i}", skill)
+            all_skills = store.load_skills()
+            assert len(all_skills) == 3
+            assert all(v is not None for v in all_skills.values())
+
+    def test_save_skill_overwrites(self) -> None:
+        """Saving same skill_id overwrites previous."""
+        from autoharness.ir.upir import UPIR, UPIRNode
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            s1 = UPIR(
+                entry="a",
+                nodes={"a": UPIRNode(kind="act", node_id="a")},
+                edges=[],
+                harness_table={},
+                skill_table={},
+            )
+            s2 = UPIR(
+                entry="b",
+                nodes={"b": UPIRNode(kind="think", node_id="b")},
+                edges=[],
+                harness_table={},
+                skill_table={},
+            )
+            store.save_skill("s1", s1)
+            store.save_skill("s1", s2)
+            loaded = store.load_skill("s1")
+            assert loaded is not None
+            assert loaded.entry == "b"
+
+    def test_load_corrupted_skill_returns_none(self) -> None:
+        """Corrupted skill file returns None instead of raising."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store = MemoryStore(data_dir=Path(tmpdir))
+            path = Path(tmpdir) / "skills" / "skill_bad_upir.json"
+            path.write_text("{not valid json")
+            assert store.load_skill("skill_bad_upir") is None

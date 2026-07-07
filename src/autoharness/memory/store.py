@@ -5,7 +5,10 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from autoharness.ir.upir import UPIR
 
 logger = logging.getLogger(__name__)
 
@@ -68,3 +71,37 @@ class MemoryStore:
         except (json.JSONDecodeError, OSError) as exc:
             logger.warning("Failed to load global stats: %s", exc)
             return {"total_runs": 0, "success_rate": 0.0}
+
+    def save_skill(self, skill_id: str, skill: UPIR) -> None:
+        """Write a skill UPIR to disk as JSON."""
+        path = self.data_dir / "skills" / f"{skill_id}_upir.json"
+        path.write_text(skill.model_dump_json())
+
+    def load_skill(self, skill_id: str) -> UPIR | None:
+        """Read a skill UPIR from disk. Returns None if not found or corrupted."""
+        from autoharness.ir.upir import UPIR as _UPIR
+
+        path = self.data_dir / "skills" / f"{skill_id}_upir.json"
+        if not path.exists():
+            return None
+        try:
+            return _UPIR.model_validate_json(path.read_text())
+        except Exception as exc:
+            logger.warning("Failed to load skill %s: %s", skill_id, exc)
+            return None
+
+    def load_skills(self) -> dict[str, UPIR]:
+        """Load all stored skills from disk. Returns dict of skill_id → UPIR."""
+        from autoharness.ir.upir import UPIR as _UPIR
+
+        skills_dir = self.data_dir / "skills"
+        result: dict[str, UPIR] = {}
+        if not skills_dir.exists():
+            return result
+        for path in sorted(skills_dir.glob("*_upir.json")):
+            skill_id = path.stem.replace("_upir", "")
+            try:
+                result[skill_id] = _UPIR.model_validate_json(path.read_text())
+            except Exception as exc:
+                logger.warning("Failed to load skill %s: %s", skill_id, exc)
+        return result
