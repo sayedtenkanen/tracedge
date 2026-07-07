@@ -47,6 +47,30 @@ class TestRewardSuccessDetection:
         r = score_trace(trace)
         assert r.task_success == 0.0
 
+    def test_env_result_info_none(self) -> None:
+        """info=None in env_result should not raise AttributeError."""
+        trace = [
+            {
+                "node_id": "n1",
+                "kind": "act",
+                "env_result": {"done": False, "reward": 0, "info": None},
+            },
+        ]
+        r = score_trace(trace)
+        assert r.task_success == 0.0
+
+    def test_env_result_info_missing(self) -> None:
+        """Missing info key in env_result should not raise."""
+        trace = [
+            {
+                "node_id": "n1",
+                "kind": "act",
+                "env_result": {"done": False, "reward": 0},
+            },
+        ]
+        r = score_trace(trace)
+        assert r.task_success == 0.0
+
 
 class TestRewardEfficiencyPenalty:
     """More steps → lower efficiency."""
