@@ -43,16 +43,27 @@ def score_trace(
 
 
 def _score_success(trace: list[dict[str, Any]]) -> float:
-    """1.0 if any harness_call has verdict='ok', else 0.0.
+    """1.0 if task succeeded, else 0.0.
 
-    Verdict vocabulary (boundary contract):
-    - 'ok': harness executed successfully
-    - 'error': harness raised an exception
-    - 'timeout': harness exceeded max_runtime_ms
+    Success signals (checked in order):
+    1. harness_call with verdict='ok' — sandboxed code ran successfully
+    2. act event with env_result.done=True and reward>0 — environment reported success
+    3. act event with env_result.info.success=True — tool reported success
     """
     for event in trace:
+        # Signal 1: harness_call verdict
         if event.get("kind") == "harness_call" and event.get("verdict") == "ok":
             return 1.0
+
+        # Signal 2: environment terminal success (game won, task complete)
+        env_result = event.get("env_result", {})
+        if env_result.get("done") and env_result.get("reward", 0) > 0:
+            return 1.0
+
+        # Signal 3: tool-level success flag
+        if env_result.get("info", {}).get("success"):
+            return 1.0
+
     return 0.0
 
 

@@ -1,8 +1,74 @@
 # AutoHarness
 
-Probabilistic program compiler that searches over a unified intermediate representation (UPIR), executes it in sandboxed environments, and extracts successful behaviors into reusable executable subprograms.
+Probabilistic program compiler that discovers, compiles, and reuses successful behavioral patterns from LLM execution traces — turning one-shot successes into reliable, reusable subprograms.
 
 Inspired by [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026).
+
+## Quick start
+
+```python
+from autoharness.ir.upir import UPIR, UPIRNode
+from autoharness.main import run_autoharness
+
+# Define strategy variants — one succeeds, one fails
+variants = {
+    "good": UPIR(
+        entry="h1",
+        nodes={"h1": UPIRNode(kind="harness_call", node_id="h1", harness_id="h")},
+        edges=[],
+        harness_table={"h": "result = True"},
+    ),
+    "bad": UPIR(
+        entry="h1",
+        nodes={"h1": UPIRNode(kind="harness_call", node_id="h1", harness_id="h")},
+        edges=[],
+        harness_table={"h": "raise ValueError('always fails')"},
+    ),
+}
+
+# Any object with chat(prompt) -> str works as the LLM
+class MyLLM:
+    def chat(self, prompt: str) -> str:
+        return "ok"
+
+# Run the full loop: execute → score → search → extract → persist
+result = run_autoharness(
+    variants=variants,
+    llm=MyLLM(),
+    seed=42,
+    max_search_iterations=15,
+    env_kind="tool",
+)
+
+print(result["best_variant"])       # "good" — winner found by Thompson search
+print(result["episodes_saved"])     # 3 — traces saved to memory
+```
+
+### What just happened?
+
+In one call, AutoHarness:
+
+1. **Searched** — ran each variant through Thompson sampling (Bayesian exploration), allocating more trials to promising strategies
+2. **Scored** — evaluated each execution trace on task success, efficiency, and safety
+3. **Extracted** — detected repeated successful patterns and compiled them into reusable skills
+4. **Persisted** — saved all traces, skill stats, and search results to memory
+
+No manual prompt tuning. No human labeling. The system learns from its own wins.
+
+## Install
+
+```bash
+git clone git@github.com:sayedtenkanen/auto-harnessessing.git
+cd auto-harnessessing
+
+python3.12 -m venv .venv
+source .venv/bin/activate
+
+pip install -e ".[dev]"
+
+# Run the end-to-end demo
+python examples/end_to_end.py
+```
 
 ## Status
 
@@ -18,102 +84,44 @@ Inspired by [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Go
 | 8-10 | Skill Execution, Pruning, Memory | done |
 | 11-16 | Compiler layer | planned |
 
-## Install
-
-```bash
-# Clone
-git clone git@github.com:sayedtenkanen/auto-harnessessing.git
-cd auto-harnessessing
-
-# Create venv (Python 3.12+)
-python3.12 -m venv .venv
-source .venv/bin/activate
-
-# Install in dev mode
-pip install -e ".[dev]"
-
-# Run tests
-pytest tests/
-```
-
-## Quick start
-
-```python
-from autoharness.ir.upir import UPIR, Edge
-from autoharness.runtime.vm import VM
-
-# Define a simple policy graph
-upir = UPIR(
-    entry="observe",
-    nodes={
-        "observe": {"kind": "observe", "node_id": "observe", "query": "What is 2+2?"},
-        "think": {"kind": "think", "node_id": "think", "prompt": "Answer: 4"},
-        "act": {"kind": "act", "node_id": "act", "tool": "respond"},
-    },
-    edges=[
-        Edge(from_="observe", to="think", kind="sequential"),
-        Edge(from_="think", to="act", kind="sequential"),
-    ],
-)
-
-# Execute with an LLM
-class SimpleLLM:
-    def chat(self, prompt: str) -> str:
-        return "4"
-
-vm = VM(upir=upir, llm=SimpleLLM())
-trace = vm.run()
-```
-
 ## Architecture
 
 ```
-UPIR (Unified Policy IR)
-  └─ VM (step-by-step interpreter)
-       ├─ Observe → Act → Think → Branch → HarnessCall → SkillCall → Phi
-       ├─ Environment (ToolEnvironment | GameEnvironment)
-       └─ Trace → Reward → Thompson Search → Refiner/Critic
+run_autoharness()
+  ├─ ThompsonTreeSearch  — Bayesian exploration over strategy variants
+  ├─ VM                  — step-by-step UPIR interpreter
+  ├─ Score               — reward = f(task_success, efficiency, safety)
+  ├─ SkillExtractor      — detect patterns → compile into reusable skills
+  └─ MemoryStore         — persist episodes, skills, global stats
 ```
 
-**Core loop:** Execute → Trace → Score → Search → Refine → Compile *(compile stage planned, slices 11-16)*
+**Core loop:** Execute → Score → Search → Extract → Persist
 
-## Project structure
+## Run the examples
 
-```
-src/autoharness/
-├── ir/              # UPIR, nodes, Harness IR types
-├── runtime/         # VM, state, seed, StepResult
-├── environment/     # Protocol, ToolEnvironment, GameEnvironment
-├── sandbox/         # Workspace, guardrails, harness runner
-├── trace/           # Trace IR
-├── reward/          # Reward engine
-├── search/          # Thompson tree search
-├── intelligence/    # LLM client, critic, refiner
-├── skills/          # Skill extraction, execution, pruning
-├── memory/          # Persistent episodic + skill memory
-└── compiler/        # (planned) Compiler passes
+```bash
+# Full end-to-end loop (no API key needed)
+python examples/end_to_end.py
+
+# Tic-Tac-Toe with game environment
+python examples/tic_tac_toe.py
+
+# Code task with tool environment
+python examples/code_task.py
+
+# Real OpenAI API call
+export OPENAI_API_KEY="sk-..."
+python examples/real_llm_task.py
 ```
 
 ## Development
 
 ```bash
-# Tests
 pytest tests/
-
-# Lint
 ruff check src/ tests/
-
-# Format
 ruff format src/ tests/
-
-# Type check
 mypy src/
-
-# Security scan
 bash scripts/security-scan.sh
-
-# CI status
-bash scripts/ci-status.sh
 ```
 
 ## License
