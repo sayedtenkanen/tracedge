@@ -9,6 +9,11 @@ from pydantic import BaseModel
 from autoharness.ir.upir import UPIR, UPIRNode
 
 
+def _subsequences(seq: tuple[str, ...], length: int) -> set[tuple[str, ...]]:
+    """Return all contiguous subsequences of `seq` with the given `length`."""
+    return {seq[i : i + length] for i in range(len(seq) - length + 1)}
+
+
 class Pattern(BaseModel):
     """A detected repeated pattern in a trace."""
 
@@ -51,6 +56,74 @@ class SkillExtractor:
 
         patterns.sort(key=lambda p: (-len(p.node_ids), -p.count))
         return patterns
+
+    def extract_from_episodes(
+        self,
+        episodes: list[tuple[Any, float]],
+        success_threshold: float = 0.0,
+    ) -> list[Pattern]:
+        """Extract patterns from successful episodes only.
+
+        Args:
+            episodes: List of (trace, reward) tuples.
+            success_threshold: Minimum reward to consider a trace successful.
+
+        Returns:
+            Deduplicated patterns sorted by length (longest first), then count.
+        """
+        # Aggregate patterns across successful episodes.
+        # Key: tuple(node_ids), Value: total occurrence count across all episodes.
+        pattern_counts: dict[tuple[str, ...], int] = {}
+
+        for trace, reward in episodes:
+            if reward <= success_threshold:
+                continue
+
+            # Find patterns in this single episode
+            episode_patterns = self.detect_patterns(trace)
+
+            for pat in episode_patterns:
+                key = tuple(pat.node_ids)
+                pattern_counts[key] = pattern_counts.get(key, 0) + pat.count
+
+        # Build Pattern objects
+        patterns = [
+            Pattern(node_ids=list(k), count=v)
+            for k, v in pattern_counts.items()
+            if v >= self.min_occurrences
+        ]
+
+        # Dedupe: if pattern A is a contiguous subsequence of pattern B,
+        # and B meets min_occurrences, drop A.
+        patterns = self._dedupe_subsequences(patterns)
+
+        patterns.sort(key=lambda p: (-len(p.node_ids), -p.count))
+        return patterns
+
+    def _dedupe_subsequences(self, patterns: list[Pattern]) -> list[Pattern]:
+        """Remove patterns that are contiguous subsequences of longer patterns."""
+        if not patterns:
+            return patterns
+
+        # Sort by length descending for comparison
+        by_length = sorted(patterns, key=lambda p: -len(p.node_ids))
+        kept: list[Pattern] = []
+        kept_keys: set[tuple[str, ...]] = set()
+
+        for pat in by_length:
+            pat_key = tuple(pat.node_ids)
+            is_sub = False
+            for existing_key in kept_keys:
+                if len(existing_key) > len(pat_key) and pat_key in _subsequences(
+                    existing_key, len(pat_key)
+                ):
+                    is_sub = True
+                    break
+            if not is_sub:
+                kept.append(pat)
+                kept_keys.add(pat_key)
+
+        return kept
 
     def extract_skill(self, pattern: Pattern, source_graph: UPIR) -> UPIRNode | None:
         """Extract a pattern into a nested UPIR skill and store in skill_table."""
