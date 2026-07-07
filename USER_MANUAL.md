@@ -244,6 +244,8 @@ upir = UPIR(
 ### Branching graph
 
 ```python
+from autoharness.ir.upir import UPIR, UPIRNode, Edge
+
 upir = UPIR(
     entry="start",
     nodes={
@@ -266,6 +268,8 @@ UPIR validates on construction:
 - Edge `from_` field accepts both `"from"` and `"from_"` (Pydantic alias)
 
 ```python
+from autoharness.ir.upir import UPIR, UPIRNode
+
 # This raises ValidationError
 UPIR(
     entry="missing",
