@@ -1,12 +1,23 @@
-"""Throwaway script to verify all Python snippets in docs parse and run correctly."""
+"""Verify all Python snippets in docs parse and run correctly.
 
+Usage:
+    python scripts/verify_doc_snippets.py              # parse + import check
+    python scripts/verify_doc_snippets.py --executable  # also run marked blocks
+"""
+
+from __future__ import annotations
+
+import argparse
 import ast
 import multiprocessing
+import subprocess  # nosec B404
 import sys
+import tempfile
+import textwrap
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DOCS = [REPO / "USE_CASES.md", REPO / "USER_MANUAL.md"]
+DOCS = [REPO / "README.md", REPO / "USE_CASES.md", REPO / "USER_MANUAL.md"]
 
 # Known importable names for quick smoke test
 SAFE_IMPORTS = {
@@ -67,7 +78,7 @@ SAFE_BUILTINS = {
 }
 
 
-def _exec_in_subprocess(block: str, queue: multiprocessing.Queue[object]) -> None:  # type: ignore[type-arg]
+def _exec_in_subprocess(block: str, queue: multiprocessing.Queue) -> None:
     """Execute block in a subprocess; puts result or exception into queue."""
     namespace: dict[str, object] = {"__builtins__": SAFE_BUILTINS}
     try:
@@ -85,7 +96,7 @@ def run_snippet_with_timeout(
 
     Returns (success, error_message).
     """
-    queue: multiprocessing.Queue[object] = multiprocessing.Queue()
+    queue: multiprocessing.Queue = multiprocessing.Queue()
     proc = multiprocessing.Process(target=_exec_in_subprocess, args=(block, queue))
     proc.start()
     proc.join(timeout=timeout_seconds)
@@ -183,9 +194,45 @@ def run_snippet(block: str, line_start: int, doc_name: str) -> list[str]:
     return errors
 
 
+def run_snippet_executable(block: str, line_start: int, doc_name: str) -> list[str]:
+    """Run a snippet as a real Python subprocess (full import access)."""
+    errors = []
+    wrapped = textwrap.dedent(block)
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+            f.write(wrapped)
+            f.flush()
+            result = subprocess.run(  # nosec B404,B603 - doc snippet execution
+                [sys.executable, f.name],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                cwd=str(REPO),
+            )
+            if result.returncode != 0:
+                stderr = result.stderr.strip().split("\n")[-1]
+                errors.append(
+                    f"  {doc_name}:{line_start}: exec failed (rc={result.returncode}): {stderr}"
+                )
+    except subprocess.TimeoutExpired:
+        errors.append(f"  {doc_name}:{line_start}: exec timed out (>15s)")
+    finally:
+        Path(f.name).unlink(missing_ok=True)
+    return errors
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--executable",
+        action="store_true",
+        help="Also run blocks marked '# executable' as real Python subprocesses",
+    )
+    args = parser.parse_args()
+
     all_errors: list[str] = []
     total_blocks = 0
+    executable_blocks = 0
 
     for doc in DOCS:
         if not doc.exists():
@@ -214,6 +261,17 @@ def main() -> int:
                 print("    FAIL (import)")
                 continue
 
+            # Executable mode: run blocks containing "# executable" marker
+            if args.executable and "# executable" in block:
+                executable_blocks += 1
+                errs = run_snippet_executable(block, line_start, doc.name)
+                if errs:
+                    all_errors.extend(errs)
+                    print("    FAIL (exec)")
+                    continue
+                print("    OK (exec)")
+                continue
+
             errs = run_snippet(block, line_start, doc.name)
             if errs:
                 all_errors.extend(errs)
@@ -223,7 +281,7 @@ def main() -> int:
             print("    OK")
 
     print(f"\n{'=' * 60}")
-    print(f"SUMMARY: {total_blocks} blocks checked")
+    print(f"SUMMARY: {total_blocks} blocks checked, {executable_blocks} executed")
     if all_errors:
         print(f"ERRORS ({len(all_errors)}):")
         for e in all_errors:

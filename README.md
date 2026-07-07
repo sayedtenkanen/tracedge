@@ -7,6 +7,7 @@ Inspired by [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Go
 ## Quick start
 
 ```python
+# executable
 from autoharness.ir.upir import UPIR, UPIRNode
 from autoharness.main import run_autoharness
 
