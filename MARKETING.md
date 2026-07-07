@@ -4,7 +4,7 @@
 
 **AutoHarness** is an open-source probabilistic program compiler for AI agents. It automatically discovers, compiles, and reuses successful behavioral patterns from LLM execution traces — turning one-shot successes into reliable, reusable subprograms.
 
-**Based on:** Inspired by [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026)
+**Implements and extends:** [arXiv:2603.03329](https://arxiv.org/abs/2603.03329) (Lou et al., Google DeepMind, 2026). The paper synthesizes constraint harnesses (protective code wrappers); this project extends the idea toward compiling execution traces into reusable, LLM-free skills.
 
 ## One-Liner
 
@@ -16,14 +16,14 @@ LLMs are powerful but inconsistent. AutoHarness solves this by watching LLM exec
 
 ## Key Differentiators
 
-| Feature | AutoHarness | LangGraph | DSPy | AutoGen |
-|---------|------------|-----------|------|---------|
-| **Automatic skill extraction** | Yes — from execution traces | No | No | No |
-| **Reusable subprograms** | Yes — compiled skills | No | Partial (modules) | No |
-| **Safety sandboxing** | AST-based, no network/filesystem | None | None | None |
-| **Zero human labeling** | Yes | Yes | Partial (signatures) | Yes |
-| **Works with any LLM** | Yes — any chat interface; OpenAI adapter included | Yes | Yes | Yes |
-| **Thompson search** | Yes — Bayesian exploration | No | No | No |
+| Feature | AutoHarness | Voyager | DSPy | ADAS | AWM |
+|---------|------------|---------|------|------|-----|
+| **Trace→skill extraction** | Yes — from execution traces | Yes — code library | No (optimizes prompts) | Yes — from demos | Yes — from traces |
+| **Deterministic skill replay** | Yes — compiled UPIR, no LLM | Partial (code gen) | No | No | No |
+| **Safety sandboxing** | AST-based, no network/filesystem | None | None | None | None |
+| **Bayesian search** | Thompson-sampling tree | No | No | No | No |
+| **Model-agnostic** | Yes — any chat interface | Yes (OpenAI) | Yes | Yes | Yes |
+| **Zero human labeling** | Yes | Yes | Partial (signatures) | Yes | Yes |
 
 ## Target Audience
 
@@ -56,7 +56,7 @@ Works with any LLM exposing a chat interface — OpenAI adapter included. Swap m
 - **Sandboxed execution:** Thread-based isolation with restricted builtins and AST-level static analysis
 - **Dual-mode reward:** Vector rewards for population search, scalar rewards for Thompson bandit updates
 - **Skill lifecycle:** Extract → Execute → Prune → Persist → Reuse
-- **307 tests** with full type coverage (mypy strict) and security scanning
+- **328 tests** with full type coverage (mypy strict) and security scanning
 
 ## Use Cases
 
