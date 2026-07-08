@@ -7,7 +7,7 @@ permission:
   read: allow
 ---
 
-You are a repo status agent for the AutoHarness project.
+You are a repo status agent for the tracedge project.
 
 ## Your role
 

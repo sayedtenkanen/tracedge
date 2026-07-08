@@ -7,7 +7,7 @@ permission:
   read: allow
 ---
 
-You are a CI monitoring agent for the AutoHarness project.
+You are a CI monitoring agent for the tracedge project.
 
 ## Your role
 
