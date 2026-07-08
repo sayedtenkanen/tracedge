@@ -26,6 +26,7 @@ pytest tests/trace/        # Slice 3
 pytest tests/reward/       # Slice 4
 pytest tests/search/       # Slice 5
 pytest tests/intelligence/ # Slice 6+
+pytest tests/compiler/     # Slices 12-15 (passes, scheduler, credit, phi)
 
 # Lint
 ruff check src/ tests/
@@ -91,7 +92,7 @@ src/tracedge/
 ├── intelligence/ # LLM integration (Slice 6)
 ├── skills/       # Skill system (Slice 7-9)
 ├── memory/       # Persistence (Slice 10)
-└── compiler/     # Compiler passes (Slice 12-15)
+├── compiler/     # Compiler passes (Slices 12-15, 14=phi nodes)
 ```
 
 ## Current status
@@ -105,7 +106,12 @@ src/tracedge/
 - [x] Slice 6: Refiner + Critic Loop
 - [x] Slice 7: Skill Extraction
 - [x] Slice 8-10: Skill Execution, Pruning, Memory
-- [ ] Slice 11-16: Compiler layer
+- [x] Slice 11: Probabilistic Execution
+- [x] Slice 12: Compiler Pass System
+- [x] Slice 13: Cost-Aware Scheduler
+- [x] Slice 14: Phi Nodes (SSA merging)
+- [x] Slice 15: Credit Assignment Compiler
+- [ ] Slice 16: Full Agent Compiler Loop (not yet wired into main loop)
 
 ## CI/CD
 

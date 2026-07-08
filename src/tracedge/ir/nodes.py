@@ -48,6 +48,20 @@ class HarnessCall(BaseModel):
 
 
 class Phi(BaseModel):
+    """SSA-style phi node for merging branch values.
+
+    ``branch_source`` identifies the branch node whose outcome selects the
+    value.  ``values`` maps ``"true"``/``"false"`` → a node ID; the VM reads
+    the trace to find which branch was taken and selects the corresponding
+    value into ``selected``.
+
+    ``sources`` is a legacy field from before branch-value selection was
+    implemented.  The VM no longer reads it — retained only so existing UPIR
+    graphs that serialize the field don't break.
+    """
+
     node_id: str
     kind: str = "phi"
-    sources: list[str] = []
+    sources: list[str] = []  # legacy — unused by VM, kept for serialization compat
+    branch_source: str = ""
+    values: dict[str, str] = {}
