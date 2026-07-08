@@ -1,4 +1,4 @@
-# AutoHarness
+# Tracedge
 
 Probabilistic program compiler that searches over a unified intermediate representation (UPIR), executes it in sandboxed environments, and compiles successful behaviors into reusable executable subprograms.
 

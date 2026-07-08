@@ -25,7 +25,7 @@ With skill reuse:    0 LLM calls per run
 Success rate:        100% → 100% (no degradation)
 ```
 
-This is built on ideas from the AutoHarness paper (arXiv:2603.03329) — which synthesizes constraint harnesses for agent safety — but extends it toward compiling traces into reusable, LLM-free skills.
+This is built on ideas from the Tracedge paper (arXiv:2603.03329) — which synthesizes constraint harnesses for agent safety — but extends it toward compiling traces into reusable, LLM-free skills.
 
 **Tech stack:** Python 3.12+, OpenAI-compatible API, Thompson sampling, AST-based sandbox. 328 tests, mypy strict, full CI.
 
@@ -78,7 +78,7 @@ Under the hood:
 • MemoryStore persists and loads skills across runs
 
 **Tweet 6 (paper):**
-Built on ideas from the AutoHarness paper (arXiv:2603.03329) — which auto-synthesizes constraint harnesses for agent safety.
+Built on ideas from the Tracedge paper (arXiv:2603.03329) — which auto-synthesizes constraint harnesses for agent safety.
 
 We extend it: instead of just safety wrappers, we compile execution traces into reusable, LLM-free skills.
 

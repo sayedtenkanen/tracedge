@@ -114,7 +114,7 @@ def test_cli_demo_mode(tmp_path: Path) -> None:
         timeout=30,
     )
     assert result.returncode == 0
-    assert "AutoHarness Demo" in result.stdout
+    assert "Tracedge Demo" in result.stdout
 
 
 def test_reuse_skills_loads_persisted_skills(tmp_path: Path) -> None:

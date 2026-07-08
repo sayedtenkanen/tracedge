@@ -1,4 +1,4 @@
-# AutoHarness
+# Tracedge
 
 Probabilistic program compiler that discovers, compiles, and reuses successful behavioral patterns from LLM execution traces — turning one-shot successes into reliable, reusable subprograms.
 
@@ -47,7 +47,7 @@ print(result["episodes_saved"])     # 3 — traces saved to memory
 
 ### What just happened?
 
-In one call, AutoHarness:
+In one call, Tracedge:
 
 1. **Searched** — ran each variant through Thompson sampling (Bayesian exploration), allocating more trials to promising strategies
 2. **Scored** — evaluated each execution trace on task success, efficiency, and safety

@@ -1,4 +1,4 @@
-"""End-to-end demo — full AutoHarness loop with a fake LLM.
+"""End-to-end demo — full Tracedge loop with a fake LLM.
 
 Demonstrates: variants → Thompson search → skill extraction → memory persistence.
 The 'good' variant always succeeds; the 'bad' variant always fails.
@@ -47,8 +47,8 @@ def main() -> None:
         ),
     }
 
-    # 2. Run the full AutoHarness loop
-    print("=== AutoHarness End-to-End Demo ===\n")
+    # 2. Run the full Tracedge loop
+    print("=== Tracedge End-to-End Demo ===\n")
     print(f"Searching over {len(variants)} variants...")
     print("  good: always succeeds (harness_call verdict='ok')")
     print("  bad:  always fails   (harness_call verdict='error')\n")

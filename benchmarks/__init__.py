@@ -1,1 +1,1 @@
-"""AutoHarness benchmarks — eval suite, runner, and report generator."""
+"""Tracedge benchmarks — eval suite, runner, and report generator."""

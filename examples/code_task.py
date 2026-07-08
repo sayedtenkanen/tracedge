@@ -42,7 +42,7 @@ def main() -> None:
                 "tool": "write_file",
                 "args": {
                     "path": "/tmp/tracedge_demo/output.txt",  # nosec B108
-                    "content": "Hello from AutoHarness!",
+                    "content": "Hello from Tracedge!",
                 },
             },
         },

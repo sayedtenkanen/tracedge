@@ -1,4 +1,4 @@
-"""Centralized defaults for AutoHarness configuration.
+"""Centralized defaults for Tracedge configuration.
 
 These values are referenced across the codebase. Keeping them in one
 place makes tuning and documentation easier.

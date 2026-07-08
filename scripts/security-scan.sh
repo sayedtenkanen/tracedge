@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Security scan script for AutoHarness
+# Security scan script for Tracedge
 # Usage: bash scripts/security-scan.sh [--verbose] [--quiet]
 #
 # Checks:
@@ -72,7 +72,7 @@ fi
 
 # --- Main --------------------------------------------------------------------
 
-banner "AutoHarness Security Scan"
+banner "Tracedge Security Scan"
 echo ""
 
 PASSED=0

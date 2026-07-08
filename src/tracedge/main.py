@@ -1,4 +1,4 @@
-"""AutoHarness end-to-end entry point — wires VM, scorer, search, skills, and memory."""
+"""Tracedge end-to-end entry point — wires VM, scorer, search, skills, and memory."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ def run_tracedge(
     env_factory: Callable[[int], Any] | None = None,
     reuse_skills: bool = False,
 ) -> dict[str, Any]:
-    """Run the full AutoHarness loop: execute → score → search → extract → persist.
+    """Run the full Tracedge loop: execute → score → search → extract → persist.
 
     Args:
         variants: Named UPIR variants to search over.
@@ -200,7 +200,7 @@ def _run_demo() -> None:
         edges=[Edge(from_="observe", to="act", kind="sequential")],
     )
 
-    print("=== AutoHarness Demo ===\n")
+    print("=== Tracedge Demo ===\n")
 
     llm = DemoLLM()
     vm = VM(upir=upir, llm=llm, environment=env)
@@ -217,7 +217,7 @@ def _run_demo() -> None:
 
 def cli() -> None:
     """Minimal CLI entry point."""
-    parser = argparse.ArgumentParser(description="AutoHarness — probabilistic program compiler")
+    parser = argparse.ArgumentParser(description="Tracedge — probabilistic program compiler")
     parser.add_argument("--demo", action="store_true", help="Run the tic-tac-toe demo")
     parser.add_argument("--version", action="version", version=_pkg_version("tracedge"))
     args = parser.parse_args()

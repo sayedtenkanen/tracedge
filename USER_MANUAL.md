@@ -1,4 +1,4 @@
-# AutoHarness — User Manual
+# Tracedge — User Manual
 
 ## Table of Contents
 

@@ -1,4 +1,4 @@
-"""Shared test fixtures for the AutoHarness test suite."""
+"""Shared test fixtures for the Tracedge test suite."""
 
 from __future__ import annotations
 

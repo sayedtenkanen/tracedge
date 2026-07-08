@@ -19,7 +19,7 @@ from benchmarks.tasks import ALL_TASKS, TASKS_BY_CATEGORY
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="AutoHarness benchmark suite — measure skill reuse impact",
+        description="Tracedge benchmark suite — measure skill reuse impact",
     )
     parser.add_argument(
         "--categories",
@@ -77,7 +77,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     llm_override = None
     if args.llm == "ollama":
-        from autoharness.intelligence.llm_client import OllamaChatClient
+        from tracedge.intelligence.llm_client import OllamaChatClient
 
         llm_override = OllamaChatClient()
         print(f"Using local Ollama ({llm_override.model})")

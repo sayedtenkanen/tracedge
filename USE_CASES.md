@@ -1,4 +1,4 @@
-# AutoHarness — Use Cases
+# Tracedge — Use Cases
 
 Each use case shows a complete end-to-end run. Define variants, call `run_tracedge()`, get results.
 
@@ -8,7 +8,7 @@ Each use case shows a complete end-to-end run. Define variants, call `run_traced
 
 **Problem:** LLM coding agents are inconsistent — sometimes they nail the fix, sometimes they loop.
 
-**Solution:** AutoHarness watches which strategies succeed, finds the best one, and extracts reusable fix patterns.
+**Solution:** Tracedge watches which strategies succeed, finds the best one, and extracts reusable fix patterns.
 
 ```python
 from tracedge.ir.upir import UPIR, Edge, UPIRNode
@@ -68,7 +68,7 @@ Skills extracted: 8
 Episodes saved:   10
 ```
 
-**What happened:** AutoHarness discovered that the `with_fix` strategy (write → test → fix → rewrite) succeeds more often. It extracted the "test → fix → rewrite" pattern as a reusable skill.
+**What happened:** Tracedge discovered that the `with_fix` strategy (write → test → fix → rewrite) succeeds more often. It extracted the "test → fix → rewrite" pattern as a reusable skill.
 
 ---
 
@@ -76,7 +76,7 @@ Episodes saved:   10
 
 **Problem:** Data pipelines need trial-and-error to find the right transformation sequence.
 
-**Solution:** Define pipeline variants, let AutoHarness find the best one and extract the working pattern.
+**Solution:** Define pipeline variants, let Tracedge find the best one and extract the working pattern.
 
 ```python
 from tracedge.ir.upir import UPIR, Edge, UPIRNode
@@ -137,7 +137,7 @@ Skills extracted: 6
 Episodes saved:   10
 ```
 
-**What happened:** The `validated` pipeline (read → transform → validate → write) scored higher on safety. AutoHarness extracted the full pipeline as a reusable skill.
+**What happened:** The `validated` pipeline (read → transform → validate → write) scored higher on safety. Tracedge extracted the full pipeline as a reusable skill.
 
 ---
 
@@ -211,7 +211,7 @@ Episodes saved:   20
 
 **Problem:** Research tasks require multiple steps — search, summarize, format — and the right sequence matters.
 
-**Solution:** Let AutoHarness search over research workflow variants and extract the best pipeline.
+**Solution:** Let Tracedge search over research workflow variants and extract the best pipeline.
 
 ```python
 from tracedge.ir.upir import UPIR, Edge, UPIRNode
@@ -277,7 +277,7 @@ Episodes saved:   10
 
 **Problem:** Agents that use tools重复 the same successful patterns but don't learn from them.
 
-**Solution:** AutoHarness detects repeated tool-use patterns and compiles them into skills that skip the LLM entirely.
+**Solution:** Tracedge detects repeated tool-use patterns and compiles them into skills that skip the LLM entirely.
 
 ```python
 from tracedge.ir.upir import UPIR, Edge, UPIRNode
@@ -338,7 +338,7 @@ Skills extracted: 7
 Episodes saved:   10
 ```
 
-**What happened:** AutoHarness found that the validated pipeline produces better results. The "scan → parse → validate → write" pattern was extracted as a skill for future use.
+**What happened:** Tracedge found that the validated pipeline produces better results. The "scan → parse → validate → write" pattern was extracted as a skill for future use.
 
 ---
 
@@ -346,7 +346,7 @@ Episodes saved:   10
 
 **Problem:** Building a new agent from scratch requires experimenting with different architectures.
 
-**Solution:** Define your variants, let AutoHarness find the best architecture, and extract the winning design as a reusable skill.
+**Solution:** Define your variants, let Tracedge find the best architecture, and extract the winning design as a reusable skill.
 
 ```python
 from tracedge.ir.upir import UPIR, Edge, UPIRNode
@@ -417,7 +417,7 @@ Skills extracted: 14
 Episodes saved:   15
 ```
 
-**What happened:** AutoHarness discovered that the iterative architecture (plan → act → check → fix → loop) is most reliable. The full loop pattern was extracted as a reusable skill.
+**What happened:** Tracedge discovered that the iterative architecture (plan → act → check → fix → loop) is most reliable. The full loop pattern was extracted as a reusable skill.
 
 ---
 
