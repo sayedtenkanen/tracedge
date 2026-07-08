@@ -22,7 +22,7 @@ Use the project's CI scripts:
 bash scripts/ci-status.sh
 
 # Detailed run info (pulls from GitHub API)
-REPO="sayedtenkanen/auto-harnessessing"
+REPO="sayedtenkanen/tracedge"
 curl -s "https://api.github.com/repos/${REPO}/actions/runs?branch=main&per_page=5" | python3 -c "
 import sys, json
 d = json.load(sys.stdin)

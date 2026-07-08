@@ -59,8 +59,8 @@ No manual prompt tuning. No human labeling. The system learns from its own wins.
 ## Install
 
 ```bash
-git clone git@github.com:sayedtenkanen/auto-harnessessing.git
-cd auto-harnessessing
+git clone git@github.com:sayedtenkanen/tracedge.git
+cd tracedge
 
 python3.12 -m venv .venv
 source .venv/bin/activate

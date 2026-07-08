@@ -34,9 +34,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/sayedtenkanen/auto-harnessessing"
-Repository = "https://github.com/sayedtenkanen/auto-harnessessing"
-Issues = "https://github.com/sayedtenkanen/auto-harnessessing/issues"
+Homepage = "https://github.com/sayedtenkanen/tracedge"
+Repository = "https://github.com/sayedtenkanen/tracedge"
+Issues = "https://github.com/sayedtenkanen/tracedge/issues"
 
 [project.scripts]
 tracedge = "tracedge.main:cli"

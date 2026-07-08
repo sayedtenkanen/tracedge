@@ -15,15 +15,15 @@ Check the upstream GitHub repo state: branches, PRs, CI status, and local-vs-rem
 
 ## Repo info
 
-- **Remote:** `git@github.com:sayedtenkanen/auto-harnessessing.git`
-- **API:** `https://api.github.com/repos/sayedtenkanen/auto-harnessessing`
+- **Remote:** `git@github.com:sayedtenkanen/tracedge.git`
+- **API:** `https://api.github.com/repos/sayedtenkanen/tracedge`
 
 ## How to check status
 
 ### 1. Branches and PRs
 
 ```bash
-REPO="sayedtenkanen/auto-harnessessing"
+REPO="sayedtenkanen/tracedge"
 
 # List open PRs
 curl -s "https://api.github.com/repos/${REPO}/pulls?state=open" | python3 -c "
@@ -43,7 +43,7 @@ git branch -r
 ### 2. CI status for a branch or PR
 
 ```bash
-REPO="sayedtenkanen/auto-harnessessing"
+REPO="sayedtenkanen/tracedge"
 
 # Latest runs on main
 curl -s "https://api.github.com/repos/${REPO}/actions/runs?branch=main&per_page=5" | python3 -c "

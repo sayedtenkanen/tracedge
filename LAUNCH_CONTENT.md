@@ -31,7 +31,7 @@ This is built on ideas from the AutoHarness paper (arXiv:2603.03329) — which s
 
 Would love feedback on the approach. Is trace→skill compilation a viable path to cheaper agents, or are we better off just using faster/cheaper models?
 
-GitHub: https://github.com/sayedtenkanen/auto-harnessessing
+GitHub: https://github.com/sayedtenkanen/tracedge
 
 ---
 
@@ -87,6 +87,6 @@ Open source, MIT licensed. 328 tests, mypy strict, full CI.
 
 If you're building LLM agents and want to cut token costs on repeated tasks, give it a try:
 
-https://github.com/sayedtenkanen/auto-harnessessing
+https://github.com/sayedtenkanen/tracedge
 
 Feedback welcome 🙏
