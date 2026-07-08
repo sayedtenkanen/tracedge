@@ -39,11 +39,14 @@ class TestPhase1ModulesExist:
         assert (SRC / "intelligence").is_dir()
 
 
-class TestPhase23NotStarted:
-    """PLAN: Phase 2/3 modules should not exist yet (Slices 11-16)."""
+class TestPhase3InProgress:
+    """PLAN: Phase 3 compiler passes should exist (Slice 12+)."""
 
-    def test_no_compiler_dir(self) -> None:
-        assert not (SRC / "compiler").is_dir(), "compiler/ should not exist before Slice 12"
+    def test_compiler_dir_exists(self) -> None:
+        assert (SRC / "compiler").is_dir(), "compiler/ should exist after Slice 12"
+
+    def test_compiler_has_passes(self) -> None:
+        assert (SRC / "compiler" / "passes.py").is_file(), "compiler/passes.py should exist"
 
 
 class TestUPIRSchema:

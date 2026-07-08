@@ -179,18 +179,36 @@ class VM:
         unresolved = list(self._last_unresolved_refs)
         true_next = getattr(node, "true_next", "")
         false_next = getattr(node, "false_next", "")
+        probability = getattr(node, "probability", None)
 
-        # Evaluate condition via LLM — ask for a boolean answer
-        response = self.llm.chat(f"Answer only true or false: {condition}")
-        taken = response.strip().lower().startswith("true")
+        # Probabilistic branch: sample from Bernoulli, skip LLM
+        if probability is not None:
+            if not 0.0 <= probability <= 1.0:
+                raise ValueError(f"Branch probability must be in [0.0, 1.0], got {probability}")
+
+            import random
+
+            rng = random.Random(self.seed_stream.next())  # nosec B311
+            taken = rng.random() < probability
+            event: dict[str, Any] = {
+                "node_id": node_id,
+                "kind": "branch",
+                "condition": condition,
+                "taken": "true" if taken else "false",
+                "sampled_probability": probability,
+            }
+        else:
+            # Deterministic branch: evaluate condition via LLM
+            response = self.llm.chat(f"Answer only true or false: {condition}")
+            taken = response.strip().lower().startswith("true")
+            event = {
+                "node_id": node_id,
+                "kind": "branch",
+                "condition": condition,
+                "taken": "true" if taken else "false",
+            }
 
         next_id = true_next if taken else false_next
-        event: dict[str, Any] = {
-            "node_id": node_id,
-            "kind": "branch",
-            "condition": condition,
-            "taken": "true" if taken else "false",
-        }
         if unresolved:
             event["unresolved_refs"] = unresolved
         return StepResult(

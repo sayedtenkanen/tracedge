@@ -1121,3 +1121,42 @@ git tag -a v0.1-slice1 -m "Slice 1: UPIR VM + Environment Protocol"
 git tag -a v0.2-slice2 -m "Slice 2: Sandbox + Safety"
 ...
 ```
+
+---
+
+## Release Checklist (added 2026-07-08 — the only outstanding work)
+
+All build phases are implemented and merged (PRs #16–#21): real learning loop,
+skill reuse with LLM-free replay, honest benchmarks, docs corrections, repo
+rename to `tracedge`, trusted-publishing workflow. What remains is the release
+itself. Verified 2026-07-08: `tracedge` is NOT yet on PyPI
+(`https://pypi.org/pypi/tracedge/json` → 404) and the name is free.
+
+- [ ] **1. Configure PyPI trusted publishing** — USER ONLY (requires PyPI login).
+      On pypi.org → account → Publishing → add a pending publisher:
+      project `tracedge`, owner `sayedtenkanen`, repo `tracedge`,
+      workflow `publish.yml`, environment `pypi`.
+- [ ] **2. Publish a GitHub release** from the existing `v0.2.0` tag
+      (`gh release create v0.2.0 --generate-notes`). The publish workflow
+      triggers on *release published* — a tag alone does nothing.
+      Watch the run: `gh run watch`.
+- [ ] **3. Verify the install** from a clean venv:
+      `python3 -m venv /tmp/t && /tmp/t/bin/pip install tracedge && /tmp/t/bin/tracedge --version`
+- [ ] **4. Launch** — get user sign-off on `LAUNCH_CONTENT.md` copy (it must
+      still match `BENCHMARKS.md` claims exactly), then post the Show HN and
+      X thread, and follow the `MARKETING.md` content calendar.
+- [ ] **5. Remove this section** once step 3 passes and step 4 is posted.
+
+### Guardrails that still apply
+
+- Do not post launch content before step 3 passes — `pip install tracedge`
+  must work before it appears in public copy.
+- Any claim published externally must match the committed `BENCHMARKS.md`
+  (honest scope: same-task replay, "verified cache" framing — no
+  generalization claims; that is explicitly not yet measured).
+
+### Post-launch (parked, do not build now)
+
+Hosted skill registry / trace observability; enterprise constraint-harness
+product; LangChain/CrewAI adapters. (The interim FIX_PLAN.md was never
+committed; its findings are resolved and its history lives in PRs #16–#21.)

@@ -245,3 +245,146 @@ class TestVMActWithEnvironment:
         assert "env_result" in trace[0]
         assert trace[0]["env_result"]["reward"] == 0.5
         mock_env.step.assert_called_once()
+
+
+class TestVMProbabilisticBranch:
+    def test_branch_with_probability_skips_llm(self) -> None:
+        """Branch with probability set samples from Bernoulli, no LLM call."""
+        llm = FakeLLM()
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {
+                    "kind": "branch",
+                    "node_id": "n1",
+                    "condition": "some_condition",
+                    "true_next": "n2",
+                    "false_next": "n3",
+                    "probability": 0.5,
+                },
+                "n2": {"kind": "act", "node_id": "n2"},
+                "n3": {"kind": "act", "node_id": "n3"},
+            },
+            edges=[
+                Edge(from_="n1", to="n2", kind="branch"),
+                Edge(from_="n1", to="n3", kind="branch"),
+            ],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=llm, seed=42)
+        trace = vm.run()
+        # LLM should not be called for probabilistic branch
+        assert llm.call_count == 0
+        # Branch event should record the sampled probability
+        assert trace[0]["kind"] == "branch"
+        assert trace[0]["taken"] in ("true", "false")
+        assert "sampled_probability" in trace[0]
+
+    def test_branch_without_probability_calls_llm(self) -> None:
+        """Branch without probability falls back to LLM evaluation."""
+        llm = FakeLLM()
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {
+                    "kind": "branch",
+                    "node_id": "n1",
+                    "condition": "True",
+                    "true_next": "n2",
+                    "false_next": "n3",
+                },
+                "n2": {"kind": "act", "node_id": "n2"},
+                "n3": {"kind": "act", "node_id": "n3"},
+            },
+            edges=[
+                Edge(from_="n1", to="n2", kind="branch"),
+                Edge(from_="n1", to="n3", kind="branch"),
+            ],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=llm, seed=42)
+        vm.run()
+        # LLM should be called for deterministic branch
+        assert llm.call_count == 1
+
+    def test_probabilistic_branch_deterministic_replay(self) -> None:
+        """Same seed with probabilistic branch produces identical trace."""
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {
+                    "kind": "branch",
+                    "node_id": "n1",
+                    "condition": "x",
+                    "true_next": "n2",
+                    "false_next": "n3",
+                    "probability": 0.5,
+                },
+                "n2": {"kind": "act", "node_id": "n2"},
+                "n3": {"kind": "act", "node_id": "n3"},
+            },
+            edges=[
+                Edge(from_="n1", to="n2", kind="branch"),
+                Edge(from_="n1", to="n3", kind="branch"),
+            ],
+            harness_table={},
+            skill_table={},
+        )
+        r1 = VM(upir=upir, llm=FakeLLM(), seed=42).run()
+        r2 = VM(upir=upir, llm=FakeLLM(), seed=42).run()
+        assert r1 == r2
+
+    def test_probabilistic_branch_different_seed(self) -> None:
+        """Different seeds can produce different branch paths."""
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {
+                    "kind": "branch",
+                    "node_id": "n1",
+                    "condition": "x",
+                    "true_next": "n2",
+                    "false_next": "n3",
+                    "probability": 0.5,
+                },
+                "n2": {"kind": "act", "node_id": "n2"},
+                "n3": {"kind": "act", "node_id": "n3"},
+            },
+            edges=[
+                Edge(from_="n1", to="n2", kind="branch"),
+                Edge(from_="n1", to="n3", kind="branch"),
+            ],
+            harness_table={},
+            skill_table={},
+        )
+        # Run with many seeds — should get both paths eventually
+        true_count = 0
+        for seed in range(100):
+            trace = VM(upir=upir, llm=FakeLLM(), seed=seed).run()
+            if trace[0]["taken"] == "true":
+                true_count += 1
+        # With p=0.5 and 100 seeds, expect roughly 50 true — not all same
+        assert 20 < true_count < 80, f"Expected ~50 true, got {true_count}"
+
+    def test_branch_probability_out_of_range_raises(self) -> None:
+        """Branch with probability outside [0.0, 1.0] raises ValueError."""
+        import pytest
+
+        upir = UPIR(
+            entry="n1",
+            nodes={
+                "n1": {
+                    "kind": "branch",
+                    "node_id": "n1",
+                    "probability": 1.5,
+                },
+                "n2": {"kind": "act", "node_id": "n2"},
+            },
+            edges=[],
+            harness_table={},
+            skill_table={},
+        )
+        with pytest.raises(ValueError, match="Branch probability must be in"):
+            VM(upir=upir, llm=FakeLLM(), seed=42).run()

@@ -31,6 +31,7 @@ class UPIR(BaseModel):
     harness_table: dict[str, Any] = {}
     skill_table: dict[str, Any] = {}
     ir_schema: str = Field(default="typed-executable-graph", alias="schema")
+    budget: int | None = None
 
     model_config = {"populate_by_name": True}
 

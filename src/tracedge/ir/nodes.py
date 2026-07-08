@@ -30,6 +30,7 @@ class Branch(BaseModel):
     condition: str = ""
     true_next: str = ""
     false_next: str = ""
+    probability: float | None = None  # None = LLM-evaluated; 0.0-1.0 = Bernoulli sample
 
 
 class SkillCall(BaseModel):
