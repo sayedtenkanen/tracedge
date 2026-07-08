@@ -27,7 +27,7 @@ Success rate:        100% → 100% (no degradation)
 
 **Scope:** This is same-task replay — skills are extracted from and replayed on identical task instances. It's a verified cache for agent behavior, not generalization to new tasks. Generalization to held-out variants is not yet measured.
 
-This is built on ideas from the Tracedge paper (arXiv:2603.03329) — which synthesizes constraint harnesses for agent safety — but extends it toward compiling traces into reusable, LLM-free skills.
+This is built on ideas from the AutoHarness paper (arXiv:2603.03329, Lou et al., Google DeepMind) — which synthesizes constraint harnesses for agent safety — but extends it toward compiling traces into reusable, LLM-free skills.
 
 **Tech stack:** Python 3.12+, OpenAI-compatible API, Thompson sampling, AST-based sandbox. 381 tests, mypy strict, full CI.
 
@@ -82,7 +82,7 @@ Under the hood:
 • MemoryStore persists and loads skills across runs
 
 **Tweet 6 (paper):**
-Built on ideas from the Tracedge paper (arXiv:2603.03329) — which auto-synthesizes constraint harnesses for agent safety.
+Built on ideas from the AutoHarness paper (arXiv:2603.03329, Lou et al.) — which auto-synthesizes constraint harnesses for agent safety.
 
 We extend it: instead of just safety wrappers, we compile execution traces into reusable, LLM-free skills.
 
