@@ -58,6 +58,22 @@ No manual prompt tuning. No human labeling. The system learns from its own wins.
 
 ## Install
 
+Distributed via GitHub (not on PyPI). Requires Python 3.12+.
+
+```bash
+# Latest release (pinned — recommended)
+pip install git+https://github.com/sayedtenkanen/tracedge.git@v0.2.0
+
+# Or bleeding edge from main
+pip install git+https://github.com/sayedtenkanen/tracedge.git
+```
+
+Prebuilt wheels are attached to
+[GitHub releases](https://github.com/sayedtenkanen/tracedge/releases)
+from v0.2.1 onward.
+
+### Development install
+
 ```bash
 git clone git@github.com:sayedtenkanen/tracedge.git
 cd tracedge

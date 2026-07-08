@@ -113,7 +113,7 @@ Define architecture variants (simple, planned, iterative). Tracedge discovers wh
 ## Metrics to Track
 
 - **GitHub:** Stars, forks, issues, PRs, contributors
-- **Adoption:** PyPI downloads, unique users
+- **Adoption:** GitHub release asset downloads (API: `assets[].download_count`), repo traffic (clones/visitors), unique users
 - **Quality:** Test coverage, security scan results, CI pass rate
 - **Community:** Discord/Slack members, blog comments, conference citations
 

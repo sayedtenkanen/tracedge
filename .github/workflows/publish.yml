@@ -1,17 +1,19 @@
-name: Publish to PyPI
+name: Attach release artifacts
+
+# Distribution is GitHub-only for now (PyPI deferred — see PLAN.md Release
+# Checklist). On each published release, build the sdist + wheel and attach
+# them as release assets so users can install a pinned, verified artifact.
 
 on:
   release:
     types: [published]
 
 permissions:
-  contents: read
-  id-token: write  # Required for trusted publishing (OIDC)
+  contents: write # upload assets to the release
 
 jobs:
-  publish:
+  build-and-attach:
     runs-on: ubuntu-latest
-    environment: pypi  # Must match the PyPI trusted publisher config
     steps:
       - uses: actions/checkout@v4
 
@@ -25,5 +27,7 @@ jobs:
       - name: Build package
         run: python -m build
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Attach sdist and wheel to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" dist/* --clobber
