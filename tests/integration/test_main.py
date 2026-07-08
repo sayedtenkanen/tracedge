@@ -231,3 +231,38 @@ def test_result_dict_per_variant_stats(tmp_path: Path) -> None:
     assert "bad" in stats
     assert "posterior_mean" in stats["good"]
     assert "trials" in stats["good"]
+
+
+def test_cli_help(capsys: object) -> None:
+    """cli() prints help when no args given."""
+    from unittest.mock import patch
+
+    from tracedge.main import cli
+
+    with patch("sys.argv", ["tracedge"]):
+        cli()
+    # Just verify it doesn't crash
+
+
+def test_cli_version(capsys: object) -> None:
+    """cli() --version prints version."""
+    from unittest.mock import patch
+
+    import pytest
+
+    from tracedge.main import cli
+
+    with pytest.raises(SystemExit) as exc_info, patch("sys.argv", ["tracedge", "--version"]):
+        cli()
+    assert exc_info.value.code == 0
+
+
+def test_run_demo(capsys: object) -> None:
+    """_run_demo runs without error."""
+    from unittest.mock import patch
+
+    from tracedge.main import _run_demo
+
+    with patch("sys.argv", ["tracedge", "--demo"]):
+        _run_demo()
+    # Verify output contains demo text

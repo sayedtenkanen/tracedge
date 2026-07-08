@@ -194,3 +194,54 @@ class TestVMTemplateResolution:
         event = trace[0]
         assert "unresolved_refs" in event
         assert "{think.response}" in event["unresolved_refs"]
+
+
+class TestVMPhiNode:
+    def test_phi_node_executes(self) -> None:
+        upir = UPIR(
+            entry="n1",
+            nodes={"n1": {"kind": "phi", "node_id": "n1"}},
+            edges=[],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=FakeLLM(), seed=42)
+        trace = vm.run()
+        assert trace[0]["kind"] == "phi"
+
+
+class TestVMUnsupportedKind:
+    def test_unsupported_kind_returns_error(self) -> None:
+        upir = UPIR(
+            entry="n1",
+            nodes={"n1": {"kind": "bogus", "node_id": "n1"}},
+            edges=[],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=FakeLLM(), seed=42)
+        trace = vm.run()
+        assert "error" in trace[0]
+        assert "unsupported kind" in trace[0]["error"]
+
+
+class TestVMActWithEnvironment:
+    def test_act_calls_environment(self) -> None:
+        from unittest.mock import MagicMock
+
+        mock_env = MagicMock()
+        mock_env.step.return_value = ({"x": 1}, 0.5, False, {"success": True})
+        mock_env.legal_actions.return_value = None
+
+        upir = UPIR(
+            entry="n1",
+            nodes={"n1": {"kind": "act", "node_id": "n1", "tool": "write", "args": {}}},
+            edges=[],
+            harness_table={},
+            skill_table={},
+        )
+        vm = VM(upir=upir, llm=FakeLLM(), seed=42, environment=mock_env)
+        trace = vm.run()
+        assert "env_result" in trace[0]
+        assert trace[0]["env_result"]["reward"] == 0.5
+        mock_env.step.assert_called_once()

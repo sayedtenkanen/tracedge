@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tracedge.intelligence.llm_client import LLMClient, OpenAIChatClient
+from tracedge.intelligence.llm_client import LLMClient, OllamaChatClient, OpenAIChatClient
 
 
 class TestLLMClientProtocol:
@@ -148,3 +148,38 @@ class TestOpenAIChatClient:
             client = OpenAIChatClient()
             with pytest.raises(IndexError):
                 client.chat("test")
+
+
+class TestOllamaChatClient:
+    """OllamaChatClient wraps local Ollama via OpenAI-compatible endpoint."""
+
+    def test_default_model(self) -> None:
+        with patch("openai.OpenAI"):
+            client = OllamaChatClient()
+            assert client.model == "gemma4:12b-mlx"
+
+    def test_custom_model(self) -> None:
+        with patch("openai.OpenAI"):
+            client = OllamaChatClient(model="llama3")
+            assert client.model == "llama3"
+
+    def test_env_model(self) -> None:
+        with patch("openai.OpenAI"), patch.dict("os.environ", {"OLLAMA_MODEL": "env-model"}):
+            client = OllamaChatClient()
+            assert client.model == "env-model"
+
+    def test_chat_returns_string(self) -> None:
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock(message=MagicMock(content="hi"))]
+        with patch("openai.OpenAI") as mock_openai:
+            mock_openai.return_value.chat.completions.create.return_value = mock_response
+            client = OllamaChatClient()
+            assert client.chat("hello") == "hi"
+
+    def test_chat_none_content(self) -> None:
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock(message=MagicMock(content=None))]
+        with patch("openai.OpenAI") as mock_openai:
+            mock_openai.return_value.chat.completions.create.return_value = mock_response
+            client = OllamaChatClient()
+            assert client.chat("test") == ""

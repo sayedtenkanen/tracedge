@@ -73,3 +73,38 @@ urllib.request.urlopen("http://example.com")
 """
         with pytest.raises(ValueError, match="network"):
             check_harness_code(code, effects={"filesystem": False, "network": False})
+
+    def test_state_delete_rejected(self) -> None:
+        from tracedge.sandbox.guardrails import check_harness_code
+
+        code = "del state['key']"
+        with pytest.raises(ValueError, match="state"):
+            check_harness_code(code, effects={"filesystem": False, "network": False})
+
+    def test_filesystem_import_rejected(self) -> None:
+        from tracedge.sandbox.guardrails import check_harness_code
+
+        code = "import os"
+        with pytest.raises(ValueError, match="filesystem"):
+            check_harness_code(code, effects={"filesystem": False, "network": False})
+
+    def test_filesystem_importfrom_rejected(self) -> None:
+        from tracedge.sandbox.guardrails import check_harness_code
+
+        code = "from os.path import join"
+        with pytest.raises(ValueError, match="filesystem"):
+            check_harness_code(code, effects={"filesystem": False, "network": False})
+
+    def test_network_import_rejected(self) -> None:
+        from tracedge.sandbox.guardrails import check_harness_code
+
+        code = "import urllib.request"
+        with pytest.raises(ValueError, match="network"):
+            check_harness_code(code, effects={"filesystem": False, "network": False})
+
+    def test_network_importfrom_rejected(self) -> None:
+        from tracedge.sandbox.guardrails import check_harness_code
+
+        code = "from urllib.request import urlopen"
+        with pytest.raises(ValueError, match="network"):
+            check_harness_code(code, effects={"filesystem": False, "network": False})
