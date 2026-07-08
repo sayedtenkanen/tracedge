@@ -33,6 +33,13 @@ This is built on ideas from the Tracedge paper (arXiv:2603.03329) — which synt
 
 Would love feedback on the approach. Is trace→skill compilation a viable path to cheaper agents, or are we better off just using faster/cheaper models?
 
+Try it (GitHub-distributed, not on PyPI):
+
+```
+pip install git+https://github.com/sayedtenkanen/tracedge.git@v0.2.1
+tracedge --demo
+```
+
 GitHub: https://github.com/sayedtenkanen/tracedge
 
 ---
@@ -90,6 +97,8 @@ We extend it: instead of just safety wrappers, we compile execution traces into 
 Open source, MIT licensed. 381 tests, mypy strict, full CI.
 
 If you're building LLM agents and want to cut token costs on repeated tasks, give it a try:
+
+pip install git+https://github.com/sayedtenkanen/tracedge.git@v0.2.1
 
 https://github.com/sayedtenkanen/tracedge
 
