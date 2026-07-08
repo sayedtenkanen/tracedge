@@ -83,7 +83,7 @@ python examples/end_to_end.py
 | 6 | Refiner + Critic Loop | done |
 | 7 | Skill Extraction | done |
 | 8-10 | Skill Execution, Pruning, Memory | done |
-| 11-16 | Compiler layer | planned |
+| 11-16 | Compiler layer | done |
 
 ## Architecture
 

@@ -29,7 +29,7 @@ Success rate:        100% → 100% (no degradation)
 
 This is built on ideas from the Tracedge paper (arXiv:2603.03329) — which synthesizes constraint harnesses for agent safety — but extends it toward compiling traces into reusable, LLM-free skills.
 
-**Tech stack:** Python 3.12+, OpenAI-compatible API, Thompson sampling, AST-based sandbox. 351 tests, mypy strict, full CI.
+**Tech stack:** Python 3.12+, OpenAI-compatible API, Thompson sampling, AST-based sandbox. 381 tests, mypy strict, full CI.
 
 Would love feedback on the approach. Is trace→skill compilation a viable path to cheaper agents, or are we better off just using faster/cheaper models?
 
@@ -87,7 +87,7 @@ Built on ideas from the Tracedge paper (arXiv:2603.03329) — which auto-synthes
 We extend it: instead of just safety wrappers, we compile execution traces into reusable, LLM-free skills.
 
 **Tweet 7 (CTA):**
-Open source, MIT licensed. 351 tests, mypy strict, full CI.
+Open source, MIT licensed. 381 tests, mypy strict, full CI.
 
 If you're building LLM agents and want to cut token costs on repeated tasks, give it a try:
 
