@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from typing import Any
 
 
@@ -10,16 +11,21 @@ class GameEnvironment:
 
     Wraps a simple Tic-Tac-Toe game for testing. legal_actions() returns
     the list of legal moves; illegal moves are tracked and rejected.
+
+    After the agent (X) plays, an opponent (O) automatically plays a random
+    legal move, and the turn returns to X.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, seed: int = 42) -> None:
         self._illegal_moves = 0
         self._total_moves = 0
+        self._rng = random.Random(seed)  # nosec B311 — game opponent, not crypto
 
     def reset(self, seed: int) -> dict[str, Any]:
         """Reset the game board and return initial state."""
         self._illegal_moves = 0
         self._total_moves = 0
+        self._rng = random.Random(seed)  # nosec B311 — game opponent, not crypto
         return {
             "board": [0] * 9,  # 0=empty, 1=X, -1=O
             "turn": 1,  # 1=X, -1=O
@@ -30,7 +36,12 @@ class GameEnvironment:
     def step(
         self, state: dict[str, Any], action: dict[str, Any]
     ) -> tuple[dict[str, Any], float, bool, dict[str, Any]]:
-        """Execute one move. Returns (next_state, reward, done, info)."""
+        """Execute one move. Returns (next_state, reward, done, info).
+
+        After the agent's move, if the game is not done, the opponent
+        (O) automatically plays a random legal move and the turn returns
+        to X.
+        """
         board = list(state["board"])
         turn = state["turn"]
         position = action.get("position", -1)
@@ -42,7 +53,7 @@ class GameEnvironment:
             info["illegal"] = True
             return state, 0.0, False, info
 
-        # Apply move
+        # Apply agent's move
         board[position] = turn
         self._total_moves += 1
 
@@ -57,18 +68,34 @@ class GameEnvironment:
         elif winner == -1:
             reward = -1.0
 
+        # Opponent auto-plays if game not done
+        opponent_played = False
+        if not done:
+            legal = _legal_positions(board)
+            if legal:
+                opp_pos = self._rng.choice(legal)
+                board[opp_pos] = -turn  # opponent's mark
+                self._total_moves += 1
+                opponent_played = True
+
+                # Check if opponent won (opponent is always -turn)
+                winner = self._check_winner(board)
+                done = winner is not None or all(cell != 0 for cell in board)
+                if winner is not None:
+                    reward = -1.0
+
         next_state = {
             "board": board,
-            "turn": -turn,
+            "turn": None if done else 1,
             "winner": winner,
             "done": done,
         }
+        info["opponent_played"] = opponent_played
         return next_state, reward, done, info
 
     def legal_actions(self, state: dict[str, Any]) -> list[dict[str, Any]]:
         """Return list of legal moves (empty board positions)."""
-        board = state["board"]
-        return [{"position": i} for i in range(9) if board[i] == 0]
+        return [{"position": i} for i in _legal_positions(state["board"])]
 
     def tools(self) -> dict[str, Any]:
         """No tools for game environments."""
@@ -101,3 +128,8 @@ class GameEnvironment:
             if total == -3:
                 return -1
         return None
+
+
+def _legal_positions(board: list[int]) -> list[int]:
+    """Return indices of empty cells on the board."""
+    return [i for i in range(9) if board[i] == 0]

@@ -66,14 +66,22 @@ class PlanThenActLLM:
 
 
 class SmartTicTacToeLLM:
-    """Picks center (4) if available, else first legal move."""
+    """Returns center (4) on first call, then cycles through positions.
+
+    The baseline UPIR has think→observe→act, so the LLM cannot see the board
+    when deciding. This scripted LLM cycles through positions to ensure the
+    game progresses.
+    """
+
+    _POSITIONS = [4, 0, 1, 2, 3, 5, 6, 7, 8]
 
     def __init__(self) -> None:
         self.call_count = 0
 
     def chat(self, prompt: str) -> str:
+        idx = self.call_count % len(self._POSITIONS)
         self.call_count += 1
-        return "4"
+        return str(self._POSITIONS[idx])
 
 
 # ---------------------------------------------------------------------------

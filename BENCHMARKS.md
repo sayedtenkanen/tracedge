@@ -2,7 +2,9 @@
 
 *Generated: 2026-07-07 21:58 UTC*
 
-**Headline:** Skill reuse reduces LLM calls at equal or better success rate.
+**Headline:** On identical task patterns, skill reuse eliminates LLM calls entirely.
+
+**Scope:** Reuse replays skills on the same tasks they were extracted from (same-task memorization). Generalization to held-out variants is not yet measured.
 
 **Reproduce:** `python -m benchmarks --categories code_gen game tool`
 

@@ -30,7 +30,14 @@ def generate_report(suite: BenchmarkSuite, output_path: str = "BENCHMARKS.md") -
     lines.append("")
     lines.append(f"*Generated: {ts}*")
     lines.append("")
-    lines.append("**Headline:** Skill reuse reduces LLM calls at equal or better success rate.")
+    lines.append(
+        "**Headline:** On identical task patterns, skill reuse eliminates LLM calls entirely."
+    )
+    lines.append("")
+    lines.append(
+        "**Scope:** Reuse replays skills on the same tasks they were extracted from "
+        "(same-task memorization). Generalization to held-out variants is not yet measured."
+    )
     lines.append("")
     lines.append("**Reproduce:** `python -m benchmarks --categories code_gen game tool`")
     lines.append("")
@@ -141,6 +148,11 @@ def generate_report(suite: BenchmarkSuite, output_path: str = "BENCHMARKS.md") -
     )
     lines.append("- LLM calls = count of think/branch events in the execution trace.")
     lines.append("- LLM calls saved = difference between baseline and reuse LLM call counts.")
+    lines.append("")
+    lines.append("**Limitation:** Reuse is same-task replay — skills are extracted from and ")
+    lines.append("replayed on identical task instances. Generalization to held-out variants ")
+    lines.append("is not yet measured. Tasks where both arms achieve 0% success are excluded ")
+    lines.append("from LLM savings totals.")
     lines.append("")
 
     content = "\n".join(lines)

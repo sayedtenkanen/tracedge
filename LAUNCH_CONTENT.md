@@ -25,9 +25,11 @@ With skill reuse:    0 LLM calls per run
 Success rate:        100% → 100% (no degradation)
 ```
 
+**Scope:** This is same-task replay — skills are extracted from and replayed on identical task instances. It's a verified cache for agent behavior, not generalization to new tasks. Generalization to held-out variants is not yet measured.
+
 This is built on ideas from the Tracedge paper (arXiv:2603.03329) — which synthesizes constraint harnesses for agent safety — but extends it toward compiling traces into reusable, LLM-free skills.
 
-**Tech stack:** Python 3.12+, OpenAI-compatible API, Thompson sampling, AST-based sandbox. 328 tests, mypy strict, full CI.
+**Tech stack:** Python 3.12+, OpenAI-compatible API, Thompson sampling, AST-based sandbox. 351 tests, mypy strict, full CI.
 
 Would love feedback on the approach. Is trace→skill compilation a viable path to cheaper agents, or are we better off just using faster/cheaper models?
 
@@ -42,7 +44,7 @@ We built a compiler that watches your AI agent succeed once — then replays it 
 
 Same output. Zero tokens.
 
-100% fewer LLM calls at equal success rate.
+100% fewer LLM calls on identical task patterns.
 
 🧵👇
 
@@ -69,6 +71,8 @@ Benchmark results on 20 tasks:
 
 The skill contains the deterministic subgraph — act → harness_call — without think nodes.
 
+**Scope:** Same-task replay — skills are extracted from and replayed on identical task instances. Generalization to held-out variants is not yet measured.
+
 **Tweet 5 (tech):**
 Under the hood:
 • UPIR (Unified Policy IR) for representing strategies
@@ -83,7 +87,7 @@ Built on ideas from the Tracedge paper (arXiv:2603.03329) — which auto-synthes
 We extend it: instead of just safety wrappers, we compile execution traces into reusable, LLM-free skills.
 
 **Tweet 7 (CTA):**
-Open source, MIT licensed. 328 tests, mypy strict, full CI.
+Open source, MIT licensed. 351 tests, mypy strict, full CI.
 
 If you're building LLM agents and want to cut token costs on repeated tasks, give it a try:
 
