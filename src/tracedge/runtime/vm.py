@@ -32,10 +32,11 @@ class VM:
         self.environment = environment
         self._env_state: dict[str, Any] = {}
         self._last_unresolved_refs: list[str] = []
+        self._trace: list[dict[str, Any]] = []
 
     def run(self) -> list[dict[str, Any]]:
         """Execute the graph and return trace events."""
-        trace: list[dict[str, Any]] = []
+        self._trace = []
         current_id: str | None = self.upir.entry
         steps = 0
 
@@ -47,11 +48,11 @@ class VM:
         while current_id is not None and steps < self.max_steps:
             node = self.upir.nodes[current_id]
             step_result = self._step_node(node)
-            trace.append(step_result.trace_event)
+            self._trace.append(step_result.trace_event)
             current_id = step_result.next
             steps += 1
 
-        return trace
+        return self._trace
 
     def _step_node(self, node: UPIRNode | dict[str, Any]) -> StepResult:
         if isinstance(node, dict):
@@ -324,24 +325,30 @@ class VM:
 
     def _step_phi(self, node: UPIRNode) -> StepResult:
         node_id = node.node_id
-        sources = getattr(node, "sources", [])
+        branch_source = getattr(node, "branch_source", "")
+        values: dict[str, str] = getattr(node, "values", {}) or {}
 
-        # Phi node merges values from source nodes
-        merged: dict[str, Any] = {}
-        for src_id in sources:
-            flat = self.state.flatten()
-            if src_id in flat:
-                merged.update(flat[src_id])
+        # Look back in the trace to find the last branch event from branch_source
+        taken: str | None = None
+        for event in reversed(self._trace):
+            if event.get("node_id") == branch_source and event.get("kind") == "branch":
+                taken = event.get("taken")
+                break
 
-        self.state.set(node_id, "merged", merged)
+        # Select the value based on which branch was taken
+        selected = values.get(taken) if taken and values else None
+
+        self.state.set(node_id, "selected", selected)
 
         return StepResult(
             next=self._next_node(node_id),
-            state_delta={node_id: {"merged": merged}},
+            state_delta={node_id: {"selected": selected}},
             trace_event={
                 "node_id": node_id,
                 "kind": "phi",
-                "sources": sources,
+                "branch_source": branch_source,
+                "taken": taken,
+                "selected": selected,
             },
         )
 

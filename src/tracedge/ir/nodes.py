@@ -51,3 +51,5 @@ class Phi(BaseModel):
     node_id: str
     kind: str = "phi"
     sources: list[str] = []
+    branch_source: str = ""
+    values: dict[str, str] = {}

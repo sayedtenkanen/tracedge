@@ -71,3 +71,71 @@ def unreachable_prune(upir: UPIR) -> UPIR:
     pruned_edges = [e for e in upir.edges if e.from_ in pruned and e.to in pruned]
 
     return upir.model_copy(update={"nodes": pruned, "edges": pruned_edges})
+
+
+def insert_phi_nodes(upir: UPIR) -> UPIR:
+    """Insert phi nodes at convergence points (nodes with multiple incoming edges).
+
+    For each convergence point, finds the nearest branch ancestor and inserts
+    a phi node that can merge values from the divergent paths.
+    """
+    # Count incoming edges per node
+    incoming: dict[str, list[str]] = {}
+    for edge in upir.edges:
+        incoming.setdefault(edge.to, []).append(edge.from_)
+
+    # Find convergence points (more than one incoming edge)
+    convergence = {nid: sources for nid, sources in incoming.items() if len(sources) > 1}
+
+    if not convergence:
+        return upir
+
+    # Build a reverse adjacency for ancestor lookup
+    children: dict[str, list[str]] = {}
+    for edge in upir.edges:
+        children.setdefault(edge.from_, []).append(edge.to)
+
+    def _find_branch_ancestor(start: str) -> str:
+        """BFS backward to find the nearest branch node."""
+        from collections import deque
+
+        visited: set[str] = set()
+        queue: deque[str] = deque([start])
+        while queue:
+            current = queue.popleft()
+            if current in visited:
+                continue
+            visited.add(current)
+            raw = upir.nodes.get(current)
+            if raw is not None:
+                node = raw if isinstance(raw, UPIRNode) else UPIRNode.model_validate(raw)
+                if node.kind == "branch":
+                    return current
+            # Walk backward via incoming edges
+            for src in incoming.get(current, []):
+                if src not in visited:
+                    queue.append(src)
+        return ""
+
+    nodes = dict(upir.nodes.items())
+    edges = list(upir.edges)
+
+    for target_id in convergence:
+        branch_source = _find_branch_ancestor(target_id)
+        phi_id = f"phi_{target_id}"
+        nodes[phi_id] = UPIRNode(
+            node_id=phi_id,
+            kind="phi",
+            branch_source=branch_source,
+            values={},
+        )
+        # Rewire: predecessors → phi → target
+        for src_id in list(convergence[target_id]):
+            # Remove old edge src → target
+            edges = [e for e in edges if not (e.from_ == src_id and e.to == target_id)]
+            # Add edge src → phi
+            edges.append(Edge(from_=src_id, to=phi_id, kind="sequential"))
+        # Add edge phi → target
+        edges.append(Edge(from_=phi_id, to=target_id, kind="sequential"))
+
+    return upir.model_copy(update={"nodes": nodes, "edges": edges})
