@@ -195,9 +195,18 @@ def _run_demo() -> None:
         entry="observe",
         nodes={
             "observe": UPIRNode(kind="observe", node_id="observe", query="Board state"),
-            "act": UPIRNode(kind="act", node_id="act", tool="place_move"),
+            "think": UPIRNode(kind="think", node_id="think", prompt="Pick a position 0-8"),
+            "act": UPIRNode(
+                kind="act",
+                node_id="act",
+                tool="place_move",
+                args={"position": "{think.response}"},
+            ),
         },
-        edges=[Edge(from_="observe", to="act", kind="sequential")],
+        edges=[
+            Edge(from_="observe", to="think", kind="sequential"),
+            Edge(from_="think", to="act", kind="sequential"),
+        ],
     )
 
     print("=== Tracedge Demo ===\n")
@@ -211,7 +220,14 @@ def _run_demo() -> None:
 
     r = score_trace(trace, env_kind="game")
     v = value(r, env_kind="game")
+
+    # Count illegal moves
+    illegal = sum(1 for e in trace if e.get("env_result", {}).get("info", {}).get("illegal"))
     print(f"\nReward: {v:.3f}")
+    if illegal:
+        print(f"Illegal moves: {illegal}")
+    else:
+        print("All moves legal.")
     print("Done.")
 
 

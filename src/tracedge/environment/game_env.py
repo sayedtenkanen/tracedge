@@ -44,7 +44,7 @@ class GameEnvironment:
         """
         board = list(state["board"])
         turn = state["turn"]
-        position = action.get("position", -1)
+        position = int(action.get("position", -1))
         info: dict[str, Any] = {"position": position, "illegal": False}
 
         # Validate move
