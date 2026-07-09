@@ -62,7 +62,7 @@ Distributed via GitHub (not on PyPI). Requires Python 3.12+.
 
 ```bash
 # Latest release (pinned — recommended)
-pip install git+https://github.com/sayedtenkanen/tracedge.git@v0.2.0
+pip install git+https://github.com/sayedtenkanen/tracedge.git@v0.2.1
 
 # Or bleeding edge from main
 pip install git+https://github.com/sayedtenkanen/tracedge.git
